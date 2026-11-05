@@ -82,7 +82,7 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Error banner */}
         {errorMessage && (
           <div className="mb-6 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-rose-800 flex items-start justify-between gap-3 shadow-sm">

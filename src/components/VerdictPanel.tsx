@@ -63,8 +63,8 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
+      <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
         <div>
           <h2 className="text-base font-bold text-slate-900">Policy Verdict</h2>
           <p className="text-xs text-slate-500">Deterministic spend validation</p>

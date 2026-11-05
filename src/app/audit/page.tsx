@@ -12,7 +12,16 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
   const params = await searchParams;
   const highlightId = params.highlight;
   const errorParam = params.error;
-  const proposals = (await listProposals()).slice().reverse(); // Show most recent first
+  const allProposals = await listProposals();
+  
+  // Keep latest first, and pin highlighted transaction to the very top
+  let proposals = allProposals;
+  if (highlightId) {
+    const highlighted = allProposals.find((p) => p.id === highlightId);
+    if (highlighted) {
+      proposals = [highlighted, ...allProposals.filter((p) => p.id !== highlightId)];
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
