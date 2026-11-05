@@ -1,0 +1,236 @@
+"use client";
+
+import { useState } from "react";
+import type { Proposal } from "@/lib/types";
+import { fmt } from "@/lib/money";
+
+interface VerdictPanelProps {
+  proposal: Proposal | null;
+  isLoadingAgent: boolean;
+}
+
+export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
+  const [confirmed, setConfirmed] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+
+  if (!proposal) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <h2 className="text-base font-bold text-slate-900 mb-2">Policy Verdict</h2>
+        <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center bg-slate-50/50">
+          <p className="text-sm text-slate-500">
+            Submit a request to see the policy evaluation and proceed to checkout.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const { verdict } = proposal;
+  const isCaptured = proposal.status === "captured";
+  const canProceed = verdict.allowed && (!verdict.needsApproval || confirmed) && !isCheckingOut && !isLoadingAgent && !isCaptured;
+
+  const handlePay = async () => {
+    if (!canProceed) return;
+    setIsCheckingOut(true);
+    setOrderError(null);
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          proposalId: proposal.id,
+          confirmed: verdict.needsApproval ? true : false,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Order creation failed");
+      }
+
+      if (data.approveUrl) {
+        window.location.href = data.approveUrl;
+      } else {
+        throw new Error("No approval URL received from PayPal");
+      }
+    } catch (err) {
+      setOrderError(err instanceof Error ? err.message : "Failed to initiate payment");
+      setIsCheckingOut(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 className="text-base font-bold text-slate-900">Policy Verdict</h2>
+          <p className="text-xs text-slate-500">Deterministic spend validation</p>
+        </div>
+        <span className="text-[11px] text-slate-400 font-mono bg-slate-100 px-2 py-0.5 rounded">
+          {proposal.id.slice(0, 8)}
+        </span>
+      </div>
+
+      {/* Large Status Pill */}
+      <div>
+        {isCaptured ? (
+          <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-white shrink-0">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              <span className="text-base font-bold text-emerald-900">Payment Captured &amp; Completed</span>
+            </div>
+            <p className="text-xs text-emerald-800 mt-1.5 font-medium">
+              Order {proposal.orderId ? `#${proposal.orderId}` : ""} has been successfully paid and recorded in the audit trail.
+            </p>
+          </div>
+        ) : !verdict.allowed ? (
+          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-rose-600 text-white shrink-0">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+              <span className="text-base font-bold text-rose-900">Blocked by policy</span>
+            </div>
+            <p className="text-xs text-rose-700 mt-1 font-medium">
+              This proposal violates one or more spending constraints:
+            </p>
+            <ul className="mt-2.5 space-y-1">
+              {verdict.violations.map((violation, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs font-medium text-rose-800">
+                  <span className="text-rose-500 font-bold">&bull;</span>
+                  <span>{violation}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : verdict.needsApproval ? (
+          <div className="rounded-xl bg-amber-50 border border-amber-300 p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-amber-500 text-white font-bold text-xs shrink-0">
+                !
+              </span>
+              <span className="text-base font-bold text-amber-900">Needs your approval</span>
+            </div>
+            <p className="text-xs text-amber-800 mt-1 font-medium">
+              Basket total exceeds the approval threshold (${fmt(proposal.policy.approvalThresholdCents)}). Human confirmation is required before payment.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-white shrink-0">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+              <span className="text-base font-bold text-emerald-900">Within policy</span>
+            </div>
+            <p className="text-xs text-emerald-700 mt-1">
+              All selected items and totals comply with spending limits. Ready for one-click checkout.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Cart Summary & Total */}
+      <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 flex items-center justify-between">
+        <div>
+          <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+            Total Proposal Amount
+          </span>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {proposal.items.length} item{proposal.items.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="text-right">
+          <span className="text-2xl font-black text-slate-900 tracking-tight">
+            ${fmt(verdict.totalCents)}
+          </span>
+          <span className="block text-[10px] text-slate-400 font-mono">USD</span>
+        </div>
+      </div>
+
+      {/* Explicit approval checkbox if required */}
+      {!isCaptured && verdict.allowed && verdict.needsApproval && (
+        <label className="flex items-start gap-3 p-3.5 rounded-xl border border-amber-300 bg-amber-50/70 cursor-pointer select-none hover:bg-amber-50 transition-colors">
+          <input
+            type="checkbox"
+            checked={confirmed}
+            disabled={isCheckingOut}
+            onChange={(e) => setConfirmed(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-amber-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+          />
+          <div className="text-xs">
+            <span className="font-semibold text-amber-950 block">
+              I approve spending ${fmt(verdict.totalCents)}
+            </span>
+            <span className="text-amber-800">
+              I have reviewed the curated items and confirm payment authorization.
+            </span>
+          </div>
+        </label>
+      )}
+
+      {/* Inline Order Error */}
+      {orderError && (
+        <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 flex items-start gap-2">
+          <span className="text-rose-500 font-bold">&times;</span>
+          <p>{orderError}</p>
+        </div>
+      )}
+
+      {/* Action Button */}
+      <div>
+        {isCaptured ? (
+          <div className="w-full text-center py-3 px-4 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-sm">
+            &check; Paid &amp; Saved to Audit Trail
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={handlePay}
+            disabled={!canProceed}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-bold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
+          >
+            {isCheckingOut ? (
+              <span className="inline-flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                <span>Connecting to PayPal Sandbox...</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-2">
+                <span>Approve &amp; pay with PayPal</span>
+                <svg className="h-4 w-4 fill-current opacity-90" viewBox="0 0 24 24">
+                  <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.641.641 0 0 1 .632-.54h7.106c3.275 0 5.673.743 6.643 2.052 1.01 1.364.887 3.392-.375 6.185-1.127 2.493-2.906 4.093-5.289 4.757-.597.166-1.303.252-2.102.257l-.396.002H9.06a.82.82 0 0 0-.81.692l-.768 4.212-.406 0zm10.158-13.88c-.68-.916-2.222-1.428-4.582-1.428H6.945L4.472 19.418h2.37l.768-4.212a2.742 2.742 0 0 1 2.706-2.314h2.003c2.42 0 4.31-.692 5.617-2.058 1.157-1.21 1.583-2.736 1.267-4.53-.16-.91-.564-1.602-1.169-2.147z" />
+                </svg>
+              </span>
+            )}
+          </button>
+        )}
+
+        {!isCaptured && !verdict.allowed && (
+          <p className="text-center text-xs text-rose-600 mt-2 font-medium">
+            Payment disabled: Basket exceeds spending policy limits.
+          </p>
+        )}
+        {!isCaptured && verdict.allowed && verdict.needsApproval && !confirmed && (
+          <p className="text-center text-xs text-amber-700 mt-2 font-medium">
+            Please tick the approval box above to enable PayPal checkout.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
