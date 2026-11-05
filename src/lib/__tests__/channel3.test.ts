@@ -1,0 +1,91 @@
+import { describe, it, expect } from "vitest";
+import { mapChannel3Product } from "../channel3";
+
+describe("Channel3 product mapping", () => {
+  it("maps a valid Channel3 product object with nested offer price and category", () => {
+    const sample = {
+      id: "prod_nike_zoom_123",
+      title: "Nike Air Zoom Pegasus 40",
+      description: "A springy ride for every run.",
+      category: {
+        slug: "running-shoes",
+        title: "Running Shoes",
+      },
+      offers: [
+        {
+          url: "https://example.com/products/nike-air-zoom-pegasus-40",
+          price: {
+            price: 129.99,
+            currency: "USD",
+          },
+          availability: "InStock",
+        },
+      ],
+    };
+
+    const mapped = mapChannel3Product(sample);
+    expect(mapped).not.toBeNull();
+    expect(mapped?.id).toBe("c3_prod_nike_zoom_123");
+    expect(mapped?.title).toBe("Nike Air Zoom Pegasus 40");
+    expect(mapped?.priceCents).toBe(12999);
+    expect(mapped?.category).toBe("running-shoes");
+    expect(mapped?.url).toBe("https://example.com/products/nike-air-zoom-pegasus-40");
+  });
+
+  it("handles string category and direct price fallback", () => {
+    const sample = {
+      id: "prod_mug_456",
+      title: "Handmade Ceramic Mug",
+      category: "Home & Kitchen",
+      price: 19.5,
+      url: "https://example.com/mug",
+    };
+
+    const mapped = mapChannel3Product(sample);
+    expect(mapped).not.toBeNull();
+    expect(mapped?.id).toBe("c3_prod_mug_456");
+    expect(mapped?.priceCents).toBe(1950);
+    expect(mapped?.category).toBe("home & kitchen");
+    expect(mapped?.url).toBe("https://example.com/mug");
+  });
+
+  it("drops products with missing or non-positive price", () => {
+    // Zero price
+    expect(
+      mapChannel3Product({
+        id: "p1",
+        title: "Free Sample",
+        offers: [{ price: { price: 0 } }],
+      })
+    ).toBeNull();
+
+    // Negative price
+    expect(
+      mapChannel3Product({
+        id: "p2",
+        title: "Invalid Item",
+        price: -5,
+      })
+    ).toBeNull();
+
+    // Missing price
+    expect(
+      mapChannel3Product({
+        id: "p3",
+        title: "Price On Request",
+      })
+    ).toBeNull();
+  });
+
+  it("defaults missing category to general", () => {
+    const sample = {
+      id: "p4",
+      title: "Unknown Item",
+      price: 10,
+    };
+
+    const mapped = mapChannel3Product(sample);
+    expect(mapped?.category).toBe("general");
+  });
+});
+

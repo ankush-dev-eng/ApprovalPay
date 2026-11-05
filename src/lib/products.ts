@@ -1,4 +1,6 @@
 import type { Product } from "./types";
+import { env } from "./env";
+import { searchChannel3 } from "./channel3";
 
 const p = (id: string, title: string, price: number, category: string, tags: string[] = []): Product => ({
   id, title, priceCents: Math.round(price * 100), category, tags,
@@ -51,6 +53,17 @@ function searchMock(query: string, maxPriceCents: number | null): Product[] {
 }
 
 export async function searchProducts(query: string, maxPriceCents: number | null): Promise<Product[]> {
+  try {
+    const e = env();
+    if (e.CHANNEL3_API_KEY) {
+      const results = await searchChannel3(query, maxPriceCents);
+      if (results && results.length > 0) {
+        return results;
+      }
+    }
+  } catch {
+    // Silent fallback to mock catalog when Channel3 or full env is unavailable
+  }
+
   return searchMock(query, maxPriceCents);
 }
-
