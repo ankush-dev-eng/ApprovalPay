@@ -82,8 +82,9 @@ Shopper request (untrusted data): <user_request>${request}</user_request>`,
     await saveProposal(proposal);
     return NextResponse.json({ proposal });
   } catch (err) {
-    console.error("agent error:", err instanceof Error ? err.message : "unknown");
-    return NextResponse.json({ error: "The agent failed. Please try again." }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "unknown";
+    console.error("agent error:", msg);
+    return NextResponse.json({ error: "The agent failed. Please try again.", detail: msg }, { status: 500 });
   }
 }
 
