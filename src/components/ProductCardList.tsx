@@ -176,7 +176,7 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
           return (
             <div
               key={`${product.id}-${idx}`}
-              className="group relative rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs hover:border-slate-300 transition-all"
+              className="group relative rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs hover:border-slate-300 transition-all animate-fade-in"
             >
               <div className="flex items-start gap-3.5">
                 {/* 64px image thumbnail */}

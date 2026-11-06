@@ -126,7 +126,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
       {/* Large Status Pill */}
       <div>
         {isCaptured ? (
-          <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-4">
+          <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-4 animate-scale-in">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-white shrink-0">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -140,7 +140,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
             </p>
           </div>
         ) : isNoMatch ? (
-          <div className="rounded-xl bg-slate-100 border border-slate-200 p-4">
+          <div className="rounded-xl bg-slate-100 border border-slate-200 p-4 animate-scale-in">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-400 text-white font-bold text-xs shrink-0">
                 —
@@ -153,7 +153,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
             </p>
           </div>
         ) : !verdict.allowed ? (
-          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
+          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 animate-scale-in">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-rose-600 text-white shrink-0">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -175,7 +175,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
             </ul>
           </div>
         ) : verdict.needsApproval ? (
-          <div className="rounded-xl bg-amber-50 border border-amber-300 p-4">
+          <div className="rounded-xl bg-amber-50 border border-amber-300 p-4 animate-scale-in">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-amber-500 text-white font-bold text-xs shrink-0">
                 !
@@ -187,7 +187,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
             </p>
           </div>
         ) : (
-          <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 animate-scale-in">
             <div className="flex items-center gap-2.5">
               <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-emerald-600 text-white shrink-0">
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

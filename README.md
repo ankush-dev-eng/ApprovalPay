@@ -4,6 +4,12 @@ An AI shopping agent governed by deterministic spending policy code, ensuring ze
 
 Live Application: https://approvalpay.onrender.com
 
+## Screenshots
+
+| Shopping & Policy Evaluation | Audit Trail & Ledger |
+|---|---|
+| ![Shopping & Policy Evaluation](docs/screenshots/main-page.jpg) | ![Audit Trail & Ledger](docs/screenshots/audit-trail.png) |
+
 ## How It Works
 
 The system enforces a strict one-way pipeline: parse -> search -> pick by ID -> policy -> human approval -> PayPal sandbox -> audit log.
