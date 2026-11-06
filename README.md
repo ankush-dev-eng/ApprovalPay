@@ -1,14 +1,9 @@
 <div align="center">
 
-<!-- Header Animated Wave Banner -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=4F46E5&height=220&section=header&text=ApprovalPay&fontSize=46&fontColor=FFFFFF&fontAlignY=40&desc=AN%20AI%20SHOPPING%20AGENT%20THAT%20CAN'T%20OVERSPEND&descAlignY=64&descSize=16&descColor=C7D2FE&animation=fadeIn" width="100%" alt="ApprovalPay Hero Banner" />
+<img src="docs/assets/banner.svg" width="100%" alt="ApprovalPay Banner" />
 
 <br/>
-
-<!-- Animated Typing Tagline -->
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=16&duration=2400&pause=1000&color=4F46E5&center=true&vCenter=true&width=750&lines=INTENT+PARSED+%E2%86%92+LIVE+CATALOG+%E2%86%92+CODE-ENFORCED+POLICY;ZERO+FINANCIAL+LEAKS+%E2%80%94+AI+NEVER+TOUCHES+MONEY;DETERMINISTIC+GOVERNANCE+%E2%80%94+NOT+AN+LLM+PROMISE;PAYPAL+SANDBOX+ORDERS+%E2%86%92+SERVER-SIDE+AUDIT+LOG" alt="Typing Tagline" />
-</p>
+<br/>
 
 <!-- Project Badges -->
 <p align="center">
@@ -38,10 +33,6 @@
 </div>
 
 ---
-
-<p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=rect&height=3&color=4F46E5" width="100%" alt="Indigo Line" />
-</p>
 
 ## 📊 At a Glance
 
@@ -437,9 +428,7 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete ter
 
 <div align="center">
 
-<p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=rect&height=3&color=4F46E5" width="100%" alt="Indigo Line" />
-</p>
+<hr />
 
 <br/>
 
@@ -448,7 +437,5 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete ter
 **ZERO FINANCIAL LEAKS • DETERMINISTIC AI COMMERCE • PAYPAL SANDBOX**
 
 <br/>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=4F46E5&height=120&section=footer" width="100%" alt="Footer Banner" />
 
 </div>
