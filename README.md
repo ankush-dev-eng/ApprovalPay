@@ -224,28 +224,28 @@ sequenceDiagram
 Shoppers can enter natural language requests or click suggested chips. Live merchant items from Channel3 display a **"Live Merchant"** badge with direct links to merchant pages.
 
 <p align="center">
-  <img src="docs/screenshots/main-page.jpg" width="90%" alt="ApprovalPay Main Page with Live Merchant Search" />
+  <img src="docs/screenshots/main-page.png" width="90%" alt="ApprovalPay Main Page with Live Merchant Search" />
 </p>
 
 ### 2. Hard Policy Lockout (Blocked State)
 When a requested item violates category restrictions (e.g. alcohol) or exceeds the per-item cap, the policy engine locks checkout with bulleted violation notices.
 
 <p align="center">
-  <img src="docs/screenshots/blocked-state.png" width="90%" alt="ApprovalPay Blocked Policy State" />
+  <img src="docs/screenshots/blocked-state.jpg" width="90%" alt="ApprovalPay Blocked Policy State" />
 </p>
 
 ### 3. PayPal Sandbox Checkout
 Seamless redirect to PayPal Sandbox with itemized breakdowns in exact USD integer cents.
 
 <p align="center">
-  <img src="docs/screenshots/paypal-checkout.jpg" width="90%" alt="PayPal Sandbox Checkout Screen" />
+  <img src="docs/screenshots/paypal-checkout.png" width="90%" alt="PayPal Sandbox Checkout Screen" />
 </p>
 
 ### 4. Governance Audit Trail
 Every proposal, verdict, and PayPal capture ID is logged in an expandable audit trail with highlighting for completed transactions.
 
 <p align="center">
-  <img src="docs/screenshots/audit-trail.jpg" width="90%" alt="ApprovalPay Governance Audit Trail" />
+  <img src="docs/screenshots/audit-trail.png" width="90%" alt="ApprovalPay Governance Audit Trail" />
 </p>
 
 ---
