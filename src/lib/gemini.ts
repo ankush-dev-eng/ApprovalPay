@@ -4,11 +4,13 @@ import { env } from "./env";
 
 export async function geminiJson<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
   const e = env();
-  const primaryModel = e.GEMINI_MODEL || "gemini-1.5-flash";
-  const candidateModels = [primaryModel];
-  if (primaryModel !== "gemini-1.5-flash") {
-    candidateModels.push("gemini-1.5-flash");
-  }
+  const primaryModel = e.GEMINI_MODEL || "gemini-3.5-flash";
+  const candidateModels = [
+    primaryModel,
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-3-flash-preview",
+  ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
   let lastError: Error | null = null;
 
@@ -34,8 +36,8 @@ export async function geminiJson<T>(prompt: string, schema: z.ZodType<T>): Promi
           const errorMsg = err.error?.message || `HTTP ${r.status}`;
           lastError = new Error(`Gemini (${model}): ${errorMsg}`);
 
-          if (r.status === 404) {
-            // Model name not found on this API version; try fallback model
+          // If model is not found (404), discontinued, or service temporarily unavailable (503), try next active candidate
+          if (r.status === 404 || r.status === 503) {
             break;
           }
           if (r.status === 429) {
