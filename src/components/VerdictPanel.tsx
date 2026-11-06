@@ -16,7 +16,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
 
   if (!proposal) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white rounded-xl border border-slate-200/90 p-5 shadow-2xs">
         <h2 className="text-base font-bold text-slate-900 mb-2">Policy Verdict</h2>
         <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center bg-slate-50/50">
           <p className="text-sm text-slate-500">
@@ -71,7 +71,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4">
+    <div className="bg-white rounded-xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
       <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
         <div>
           <h2 className="text-base font-bold text-slate-900">Policy Verdict</h2>
@@ -276,7 +276,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
             checked={confirmed}
             disabled={isCheckingOut}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-amber-400 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+            className="mt-0.5 h-4 w-4 rounded border-amber-400 text-slate-900 focus:ring-slate-900 cursor-pointer"
           />
           <div className="text-xs">
             <span className="font-semibold text-amber-950 block">
@@ -318,7 +318,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
             type="button"
             onClick={handlePay}
             disabled={!canProceed || isCheckingOut}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-bold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#003087] px-5 py-3 text-sm font-bold text-white shadow-2xs hover:bg-[#002466] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#003087] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
           >
             {isCheckingOut ? (
               <span className="inline-flex items-center gap-2">

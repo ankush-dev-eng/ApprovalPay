@@ -21,10 +21,10 @@ export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentIn
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-slate-200/90 p-5 shadow-2xs">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="agent-prompt" className="block text-sm font-semibold text-slate-800 mb-2">
+          <label htmlFor="agent-prompt" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
             What would you like to buy?
           </label>
           <div className="relative">
@@ -36,9 +36,9 @@ export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentIn
               value={request}
               onChange={(e) => setRequest(e.target.value)}
               placeholder="e.g. 3 gifts under $50 each for my team"
-              className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 text-base transition-colors"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50/60 px-3.5 py-2.5 text-slate-900 placeholder-slate-400 focus:border-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:opacity-60 text-sm transition-colors"
             />
-            <div className="absolute right-3 bottom-3 text-xs text-slate-400 select-none">
+            <div className="absolute right-3 bottom-2.5 text-[11px] font-mono text-slate-400 select-none">
               {request.length}/300
             </div>
           </div>
@@ -53,7 +53,7 @@ export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentIn
                 type="button"
                 disabled={isLoading}
                 onClick={() => setRequest(ex)}
-                className="inline-flex items-center rounded-lg bg-slate-100 hover:bg-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 transition-colors disabled:opacity-50 text-left"
+                className="inline-flex items-center rounded-md bg-slate-100 hover:bg-slate-200/80 border border-slate-200/60 px-2 py-0.5 text-xs font-medium text-slate-700 transition-colors disabled:opacity-50 text-left"
               >
                 &ldquo;{ex}&rdquo;
               </button>
@@ -63,7 +63,7 @@ export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentIn
           <button
             type="submit"
             disabled={isLoading || request.trim().length < 3}
-            className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all min-w-[120px]"
+            className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-2xs hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all min-w-[110px]"
           >
             {isLoading ? (
               <span className="inline-flex items-center gap-2">

@@ -100,7 +100,7 @@ function statusPill(status: ProposalStatus | "expired") {
       );
     case "proposed":
       return (
-        <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
+        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 border border-slate-200">
           proposed
         </span>
       );
@@ -354,7 +354,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
       {/* Summary Strip (4 Numbers: Payments captured count + $, Blocked count, Spend prevented $, Declined count) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1: Payments captured */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+        <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Payments Captured
@@ -377,7 +377,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         </div>
 
         {/* Metric 2: Blocked by policy */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+        <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Blocked by Policy
@@ -398,12 +398,12 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         </div>
 
         {/* Metric 3: Spend prevented */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+        <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Spend Prevented
             </span>
-            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-indigo-50 text-indigo-600">
+            <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-slate-100 text-slate-700">
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -418,7 +418,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         </div>
 
         {/* Metric 4: Declined */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+        <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Declined
@@ -597,7 +597,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                             className="group py-1"
                             open={isHighlighted}
                           >
-                            <summary className="cursor-pointer text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 select-none inline-flex items-center gap-1.5 focus:outline-none">
+                            <summary className="cursor-pointer text-[11px] font-semibold text-slate-700 hover:text-slate-950 select-none inline-flex items-center gap-1.5 focus:outline-none">
                               <span>Expand details</span>
                               <svg
                                 className="w-3.5 h-3.5 group-open:rotate-180 transition-transform"
@@ -656,7 +656,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                                                 href={product.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="font-semibold text-slate-900 hover:text-indigo-600 inline-flex items-center gap-1 transition-colors"
+                                                className="font-semibold text-slate-900 hover:text-slate-950 inline-flex items-center gap-1 transition-colors"
                                               >
                                                 <span>{product.title}</span>
                                                 <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ApprovalPay - An AI Shopping Agent That Can't Overspend",
-  description: "An AI shopping agent that can't overspend. Powered by PayPal and Gemini.",
+  title: "ApprovalPay · Spending rules the AI can't override",
+  description: "Autonomous AI agent shopping governed by code-enforced spending policy limits and PayPal sandbox checkout.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

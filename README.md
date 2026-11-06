@@ -92,7 +92,7 @@ Open `http://localhost:3000` in your browser.
 
 ## Tests
 
-The project includes 26 Vitest tests covering deterministic spending policies, word-level category blocking, Channel3 USD currency filtering, proposal expiry, and selection relevance guards:
+The project includes 30 Vitest tests covering deterministic spending policies, word-level category blocking, Channel3 USD currency filtering, Channel3 HTTPS image mapping, proposal expiry, and selection relevance guards:
 
 ```bash
 npm test

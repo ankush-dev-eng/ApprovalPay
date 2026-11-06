@@ -101,8 +101,8 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
 
   if (!proposal) {
     return (
-      <div className="rounded-2xl border-2 border-dashed border-slate-200 p-10 text-center bg-white/50">
-        <div className="mx-auto h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+      <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center bg-white/60">
+        <div className="mx-auto h-10 w-10 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center mb-3">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
@@ -176,7 +176,7 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
           return (
             <div
               key={`${product.id}-${idx}`}
-              className="group relative rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all"
+              className="group relative rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs hover:border-slate-300 transition-all"
             >
               <div className="flex items-start gap-3.5">
                 {/* 64px image thumbnail */}
@@ -191,11 +191,11 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
                           href={product.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-semibold text-slate-900 text-base leading-snug hover:text-indigo-600 inline-flex items-center gap-1.5 transition-colors line-clamp-1"
+                          className="font-semibold text-slate-900 text-base leading-snug hover:text-slate-700 inline-flex items-center gap-1.5 transition-colors line-clamp-1"
                         >
                           <span>{product.title}</span>
                           <svg
-                            className="h-3.5 w-3.5 text-slate-400 hover:text-indigo-600 shrink-0"
+                            className="h-3.5 w-3.5 text-slate-400 hover:text-slate-700 shrink-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
