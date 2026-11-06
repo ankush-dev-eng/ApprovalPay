@@ -240,9 +240,12 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
                     </div>
                   </div>
 
-                  <p className="mt-2 text-xs leading-relaxed text-slate-600 italic">
-                    &ldquo;{reason}&rdquo;
-                  </p>
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-start gap-1.5">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase shrink-0 mt-0.5 font-mono">Agent:</span>
+                    <p className="text-xs leading-relaxed text-slate-600 italic">
+                      &ldquo;{reason}&rdquo;
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

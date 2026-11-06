@@ -80,26 +80,31 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-slate-200 selection:text-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-slate-200 selection:text-slate-900 overflow-x-hidden relative">
+      {/* GetLayers subtle ambient canvas light */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(148,163,184,0.12),transparent_70%)]"
+        aria-hidden="true"
+      />
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-x-hidden">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-x-hidden relative z-10">
         {/* Error banner */}
         {errorMessage && (
-          <div className="mb-6 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-rose-800 flex items-start justify-between gap-3 shadow-sm">
+          <div className="mb-6 rounded-xl bg-rose-50/90 border border-rose-200 p-4 text-rose-800 flex items-start justify-between gap-3 shadow-2xs">
             <div className="flex items-start gap-3">
-              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-rose-200 text-rose-800 font-bold text-sm shrink-0 mt-0.5">
+              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-rose-200 text-rose-900 font-bold text-xs shrink-0 mt-0.5">
                 !
               </span>
               <div>
-                <h3 className="text-sm font-semibold text-rose-900">Agent Notice</h3>
-                <p className="text-xs text-rose-700 mt-0.5 leading-relaxed">{errorMessage}</p>
+                <h3 className="text-xs font-bold text-rose-950">Agent Notice</h3>
+                <p className="text-xs text-rose-800 mt-0.5 leading-relaxed">{errorMessage}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setErrorMessage(null)}
-              className="text-rose-500 hover:text-rose-700 text-sm font-bold focus:outline-none"
+              className="text-rose-400 hover:text-rose-700 text-base font-bold focus:outline-none cursor-pointer"
               aria-label="Dismiss error"
             >
               &times;

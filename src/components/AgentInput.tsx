@@ -54,7 +54,7 @@ export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentIn
                 type="button"
                 disabled={isLoading}
                 onClick={() => setRequest(ex)}
-                className="inline-flex items-center rounded-md bg-slate-100 hover:bg-slate-200/80 border border-slate-200/60 px-2 py-0.5 text-xs font-medium text-slate-700 transition-colors disabled:opacity-50 text-left"
+                className="inline-flex items-center rounded-lg bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-2xs hover:border-slate-300 transition-all disabled:opacity-50 text-left active:scale-[0.98]"
               >
                 &ldquo;{ex}&rdquo;
               </button>

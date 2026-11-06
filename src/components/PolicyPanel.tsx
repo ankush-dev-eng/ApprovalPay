@@ -100,7 +100,7 @@ export function PolicyPanel({ policy, onChange, disabled }: PolicyPanelProps) {
               disabled={disabled}
               value={Math.round(policy.perItemCapCents / 100)}
               onChange={(e) => handleCapChange(e.target.value)}
-              className="block w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm text-slate-900 focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:bg-slate-50 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="block w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm font-mono font-bold text-slate-900 focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:bg-slate-50 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <p className="text-[10px] text-slate-400">Max item ($1-$500)</p>
@@ -123,7 +123,7 @@ export function PolicyPanel({ policy, onChange, disabled }: PolicyPanelProps) {
               disabled={disabled}
               value={Math.round(policy.totalBudgetCents / 100)}
               onChange={(e) => handleBudgetChange(e.target.value)}
-              className="block w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm text-slate-900 focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:bg-slate-50 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="block w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm font-mono font-bold text-slate-900 focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:bg-slate-50 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <p className="text-[10px] text-slate-400">Max cart ($1-$500)</p>
@@ -146,7 +146,7 @@ export function PolicyPanel({ policy, onChange, disabled }: PolicyPanelProps) {
               disabled={disabled}
               value={Math.round(policy.approvalThresholdCents / 100)}
               onChange={(e) => handleThresholdChange(e.target.value)}
-              className="block w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm text-slate-900 focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:bg-slate-50 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="block w-full rounded-lg border border-slate-300 py-1.5 pl-7 pr-3 text-sm font-mono font-bold text-slate-900 focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800 disabled:bg-slate-50 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <p className="text-[10px] text-slate-400">Sign-off above ($0-$500)</p>
@@ -203,7 +203,7 @@ export function PolicyPanel({ policy, onChange, disabled }: PolicyPanelProps) {
             type="button"
             disabled={disabled || !newCategory.trim()}
             onClick={handleAddCategory}
-            className="rounded-lg bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 text-xs font-semibold text-slate-700 disabled:opacity-50 transition-colors"
+            className="rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold px-3.5 py-1.5 text-xs disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all shadow-2xs active:scale-[0.98]"
           >
             Block
           </button>
