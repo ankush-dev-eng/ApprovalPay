@@ -4,73 +4,62 @@ import { env } from "./env";
 
 export async function geminiJson<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
   const e = env();
-
-  // Discover valid models for this API key
-  let available: string[] = [];
-  try {
-    const listRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
-      headers: { "x-goog-api-key": e.GEMINI_API_KEY },
-      cache: "no-store",
-    });
-    if (listRes.ok) {
-      const listData = (await listRes.json()) as { models?: { name?: string; supportedGenerationMethods?: string[] }[] };
-      available = (listData.models ?? [])
-        .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
-        .map((m) => m.name?.replace(/^models\//, "") ?? "")
-        .filter((m) => m.startsWith("gemini-") && !m.includes("tts") && !m.includes("audio") && !m.includes("embedding") && !m.includes("image"));
-    } else {
-      const err = (await listRes.json()) as { error?: { message?: string } };
-      throw new Error(`ListModels HTTP ${listRes.status}: ${err.error?.message ?? ""}`);
-    }
-  } catch (err) {
-    throw new Error(`Gemini auth/list failed: ${err instanceof Error ? err.message : "unknown"}`);
+  const primaryModel = e.GEMINI_MODEL || "gemini-1.5-flash";
+  const candidateModels = [primaryModel];
+  if (primaryModel !== "gemini-1.5-flash") {
+    candidateModels.push("gemini-1.5-flash");
   }
-
-  const model = available.includes(e.GEMINI_MODEL)
-    ? e.GEMINI_MODEL
-    : available.find((m) => m.includes("flash")) ?? available[0];
-
-  if (!model) {
-    throw new Error(`No models supporting generateContent found. Available: ${available.join(", ")}`);
-  }
-
-  // Prioritize models
-  const modelsToTry = [
-    model,
-    ...available.filter((m) => m !== model),
-  ];
 
   let lastError: Error | null = null;
-  for (const m of modelsToTry) {
+
+  for (const model of candidateModels) {
     for (let attempt = 0; attempt < 2; attempt++) {
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": e.GEMINI_API_KEY },
-          cache: "no-store",
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: "application/json", temperature: 0.2 },
-          }),
-        }
-      );
-      if (!r.ok) {
-        const err = (await r.json()) as { error?: { message?: string } };
-        lastError = new Error(`Gemini (${m}) failed HTTP ${r.status}: ${err.error?.message ?? ""}`);
-        // If invalid model, quota, or server error, break to try next available model
-        if (r.status >= 400) break;
-        throw lastError;
-      }
-      const j = (await r.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-      const text = j.candidates?.[0]?.content?.parts?.[0]?.text;
       try {
-        return schema.parse(JSON.parse(text ?? ""));
-      } catch {
-        // retry once
+        const r = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": e.GEMINI_API_KEY },
+            cache: "no-store",
+            signal: AbortSignal.timeout(15000),
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: prompt }] }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.2 },
+            }),
+          }
+        );
+
+        if (!r.ok) {
+          const err = (await r.json().catch(() => ({}))) as { error?: { message?: string } };
+          const errorMsg = err.error?.message || `HTTP ${r.status}`;
+          lastError = new Error(`Gemini (${model}): ${errorMsg}`);
+
+          if (r.status === 404) {
+            // Model name not found on this API version; try fallback model
+            break;
+          }
+          if (r.status === 429) {
+            throw new Error("Gemini quota or rate limit exceeded. Please wait a moment and try again.");
+          }
+          continue;
+        }
+
+        const j = (await r.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+        const text = j.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) {
+          lastError = new Error(`Gemini (${model}) returned an empty candidate`);
+          continue;
+        }
+
+        return schema.parse(JSON.parse(text));
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        if (lastError.message.includes("rate limit") || lastError.message.includes("quota")) {
+          throw lastError;
+        }
       }
     }
   }
 
-  throw lastError ?? new Error("Model returned invalid JSON twice");
+  throw lastError ?? new Error("Failed to parse structured JSON from model");
 }

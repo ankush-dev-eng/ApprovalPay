@@ -195,6 +195,7 @@ export async function searchChannel3(
         limit: 20,
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(7000),
     });
 
     if (!res.ok) {

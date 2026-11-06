@@ -10,7 +10,7 @@ const schema = z.object({
     .url()
     .refine((u) => new URL(u).hostname === "api-m.sandbox.paypal.com", "PAYPAL_BASE must be the sandbox host"),
   GEMINI_API_KEY: z.string().trim().min(1),
-  GEMINI_MODEL: z.string().trim().min(1).default("gemini-2.5-flash"),
+  GEMINI_MODEL: z.string().trim().min(1).default("gemini-1.5-flash"),
   APP_URL: z.string().trim().url(),
   CHANNEL3_API_KEY: z.string().trim().optional(),
   PAYPAL_MOCK_ERROR: z.string().trim().optional(),
