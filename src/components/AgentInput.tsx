@@ -25,7 +25,7 @@ export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentIn
     <div className="bg-white rounded-xl border border-slate-200/90 p-5 shadow-2xs">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="agent-prompt" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+          <label htmlFor="agent-prompt" className="block text-xs font-bold text-slate-900 mb-2">
             What would you like to buy?
           </label>
           <div className="relative">

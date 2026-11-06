@@ -160,7 +160,7 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">
+        <h3 className="text-xs font-bold text-slate-600">
           Agent recommendations ({proposal.items.length})
         </h3>
         <span className="text-xs text-slate-400">

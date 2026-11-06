@@ -207,7 +207,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
       {verdict.checks && verdict.checks.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+            <h3 className="text-xs font-bold text-slate-700">
               Rules checked
             </h3>
             <span className="text-[10px] text-slate-500 font-semibold">
@@ -294,7 +294,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
       {/* Cart Summary & Total */}
       <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 flex items-center justify-between">
         <div>
-          <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+          <span className="text-xs font-medium text-slate-600">
             Item total (excl. shipping &amp; tax)
           </span>
           <p className="text-xs text-slate-400 mt-0.5">

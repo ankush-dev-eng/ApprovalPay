@@ -356,8 +356,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         {/* Metric 1: Payments captured */}
         <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Payments Captured
+            <span className="text-xs font-semibold text-slate-600">
+              Payments captured
             </span>
             <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-emerald-50 text-emerald-600">
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -366,10 +366,10 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
               {capturedCount}
             </span>
-            <span className="text-xs sm:text-sm font-semibold text-emerald-600 font-mono">
+            <span className="text-xs sm:text-sm font-semibold text-emerald-600 font-mono tabular-nums">
               (${fmt(capturedTotalCents)})
             </span>
           </div>
@@ -379,8 +379,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         {/* Metric 2: Blocked by policy */}
         <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Blocked by Policy
+            <span className="text-xs font-semibold text-slate-600">
+              Blocked by policy
             </span>
             <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-rose-50 text-rose-600">
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -389,7 +389,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
               {blockedCount}
             </span>
             <span className="text-xs font-medium text-slate-400">proposals</span>
@@ -400,8 +400,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         {/* Metric 3: Spend prevented */}
         <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Spend Prevented
+            <span className="text-xs font-semibold text-slate-600">
+              Spend prevented
             </span>
             <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-slate-100 text-slate-700">
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -410,7 +410,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
               ${fmt(spendPreventedCents)}
             </span>
           </div>
@@ -420,8 +420,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
         {/* Metric 4: Declined */}
         <div className="rounded-xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Declined
+            <span className="text-xs font-semibold text-slate-600">
+              Declined orders
             </span>
             <span className="inline-flex items-center justify-center h-6 w-6 rounded-lg bg-amber-50 text-amber-600">
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -430,7 +430,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono tabular-nums">
               {declinedCount}
             </span>
             <span className="text-xs font-medium text-slate-400">orders</span>
@@ -530,7 +530,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
           <div className="w-full overflow-x-auto">
             <table className="w-full min-w-[980px] text-left border-collapse table-auto">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-600">
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Time</th>
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Proposal ID</th>
                   <th scope="col" className="px-4 py-3">Request</th>
@@ -637,8 +637,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
 
                               {/* Curated Items & Reasoning */}
                               <div>
-                                <span className="font-bold text-xs uppercase tracking-wider text-slate-500 block mb-2">
-                                  Curated Items &amp; Agent Reasoning ({p.items.length})
+                                <span className="font-bold text-xs text-slate-700 block mb-2">
+                                  Curated items &amp; agent reasoning ({p.items.length})
                                 </span>
                                 {p.items.length === 0 ? (
                                   <p className="text-xs text-slate-400 italic">No items were selected for this proposal.</p>
