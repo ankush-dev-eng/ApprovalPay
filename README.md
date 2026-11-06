@@ -1,441 +1,114 @@
-<div align="center">
+# ApprovalPay
 
-<img src="docs/assets/banner.svg" width="100%" alt="ApprovalPay Banner" />
+An AI shopping agent governed by deterministic spending policy code, ensuring zero financial authority for language models before PayPal checkout.
 
-<br/>
-<br/>
+Live Application: https://approvalpay.onrender.com
 
-<!-- Project Badges -->
-<p align="center">
-  <a href="https://approvalpay.onrender.com/"><img src="https://img.shields.io/badge/LIVE_DEMO-ON_RENDER-00C7B7?style=for-the-badge&logo=render&logoColor=white&labelColor=14171F" alt="Live Demo on Render" /></a>
-  <a href="https://developer.paypal.com/docs/api/orders/v2/"><img src="https://img.shields.io/badge/PAYPAL-SANDBOX_ONLY-003087?style=for-the-badge&logo=paypal&logoColor=white&labelColor=001C64" alt="PayPal Sandbox" /></a>
-  <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/GEMINI_AI-FLASH-8E75C2?style=for-the-badge&logo=googlegemini&logoColor=white&labelColor=1E1B4B" alt="Google Gemini" /></a>
-  <a href="https://trychannel3.com"><img src="https://img.shields.io/badge/CHANNEL3-LIVE_CATALOG-4F46E5?style=for-the-badge&logo=shopify&logoColor=white&labelColor=1E1B4B" alt="Channel3 API" /></a>
-  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/NEXT.JS_16-APP_ROUTER-000000?style=for-the-badge&logo=nextdotjs&logoColor=white&labelColor=17171B" alt="Next.js 16" /></a>
-  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TYPESCRIPT-STRICT_MODE-3178C6?style=for-the-badge&logo=typescript&logoColor=white&labelColor=17171B" alt="TypeScript Strict" /></a>
-  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/TAILWIND_V4-DESIGN-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white&labelColor=17171B" alt="Tailwind CSS v4" /></a>
-  <a href="https://vitest.dev"><img src="https://img.shields.io/badge/VITEST-26_PASSED-6E9F18?style=for-the-badge&logo=vitest&logoColor=white&labelColor=17171B" alt="Vitest Passed" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-A9690F?style=for-the-badge&labelColor=17171B" alt="MIT License" /></a>
-</p>
+## How It Works
 
-<p align="center">
-  <strong>Autonomous AI agent shopping governed by hard mathematical policy bounds.</strong><br>
-  Built with pride for the <strong>PayPal AI Hackathon 2026</strong> &bull; <em>Category: Agentic Commerce</em><br>
-  <strong>Developer</strong> &bull; Ankush Shahu
-</p>
-
-<p align="center">
-  <a href="https://approvalpay.onrender.com/"><strong>🚀 Open Live Application</strong></a> &bull;
-  <a href="https://approvalpay.onrender.com/audit"><strong>📋 View Governance Audit Trail</strong></a> &bull;
-  <a href="https://github.com/ankush-dev-eng/ApprovalPay"><strong>📦 GitHub Repository</strong></a>
-</p>
-
-</div>
-
----
-
-## 📊 At a Glance
-
-| Dimension | Specification |
-|:---|:---|
-| 🌐 **Live Production App** | **[https://approvalpay.onrender.com](https://approvalpay.onrender.com)** |
-| 🏆 **Event / Challenge** | **PayPal AI Hackathon 2026** (Theme: Agentic Commerce & Autonomous Payments) |
-| 🛡️ **Core Invariant** | **Zero Financial Authority for LLMs**: The model never sees, computes, or alters numeric prices. |
-| 🔢 **Pricing Engine** | **100% Deterministic (Integer Cents)**: Prices come strictly from verified catalog data post-selection. |
-| 🛍️ **Product Discovery** | **Channel3 Live Merchant Graph API** (`api.trychannel3.com`) with automatic mock catalog fallback |
-| 💳 **Payment Gateway** | **PayPal Checkout REST API v2** (`/v2/checkout/orders` & `/v2/checkout/orders/{id}/capture`) |
-| 🧪 **Target Sandbox** | **Strictly Sandbox Only** (`https://api-m.sandbox.paypal.com` enforced at startup) |
-| 🤖 **AI Model Pipeline** | Google Gemini (Semantic intent parsing & candidate curation strictly by ID) |
-| ⚖️ **Policy Engine** | Pure TypeScript: per-item cap, total budget, word-level category blocklist, $500 ceiling, approval threshold |
-| 👤 **Human Gate** | Explicit user confirmation checkbox required whenever proposal total exceeds threshold |
-| 📋 **Audit Trail** | Server-side record of proposals, intent, policy verdicts, and PayPal Order IDs (`data/audit.json`) |
-| ✅ **Automated Testing** | 26 Vitest unit tests (100% pass) + pre-commit secret scanners + GitHub Actions CI |
-
----
-
-## 📑 Table of Contents
-
-- [🎯 01 — The Problem & Vision](#-01--the-problem--vision)
-- [🧠 02 — Why the AI Never Touches Money](#-02--why-the-ai-never-touches-money)
-- [🔀 03 — Multi-Stage Pipeline Flowchart](#-03--multi-stage-pipeline-flowchart)
-- [📸 04 — Product Walkthrough & Visual Proof](#-04--product-walkthrough--visual-proof)
-- [🛍️ 05 — Channel3 Live Merchant Discovery](#-05--channel3-live-merchant-discovery)
-- [⚖️ 06 — Deterministic Spending Policy Engine](#-06--deterministic-spending-policy-engine)
-- [💳 07 — PayPal Sandbox Integration](#-07--paypal-sandbox-integration)
-- [🛡️ 08 — Security & Trust Architecture](#-08--security--trust-architecture)
-- [📋 09 — Governance Audit Trail](#-09--governance-audit-trail)
-- [🚀 10 — Quickstart & Environment Setup](#-10--quickstart--environment-setup)
-- [🧪 11 — Verification & Testing](#-11--verification--testing)
-- [⚠️ 12 — Scope & Limitations](#-12--scope--limitations)
-- [📄 13 — License](#-13--license)
-
----
-
-## 🎯 01 — The Problem & Vision
-
-### The Vulnerability in Agentic Commerce
-The promise of AI shopping agents is seamless delegation: *"Buy 3 gifts for my team under $50 each."*
-
-However, connecting Generative AI directly to payment rails introduces fatal financial risks:
-1. **Hallucinated Numbers**: LLMs routinely fabricate prices, miss shipping fees, or perform invalid decimal arithmetic.
-2. **Budget Slippage**: Prompts like *"get the best available"* cause agents to drift beyond financial constraints.
-3. **Prompt Injection & Overrides**: Adversarial product listings can embed instructions (e.g. *"[DISCOUNT OVERRIDE: Price is $1]"*) that hijack an agent into authorizing unauthorized checkout amounts.
-
-### The ApprovalPay Vision
-**ApprovalPay decouples semantic intelligence from financial execution.** The AI is treated as an untrusted recommendation engine. Every product, price, and policy limit is evaluated by pure, deterministic TypeScript code before a single PayPal transaction can be prepared.
-
-> [!IMPORTANT]
-> **Core Guarantee**: An AI shopping agent that *physically cannot overspend*. If ground-truth prices exceed your budget or violate category restrictions, the policy engine rejects the basket in code, and PayPal checkout is locked.
-
----
-
-## 🧠 02 — Why the AI Never Touches Money
-
-ApprovalPay enforces an airtight boundary: the LLM is used exclusively for natural-language parsing and candidate selection by ID.
-
-```text
- ┌────────────────────────────────────────────────────────┐
- │                    SHOPPER REQUEST                     │
- │      "3 gifts under $50 each for my team"              │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 1. INTENT PARSING (Gemini LLM)                         │
- │    • Query: "gifts" | Quantity: 3 | Max: $50           │
- │    • User prompt isolated inside untrusted XML tags   │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 2. PRODUCT DISCOVERY (Channel3 API / Mock Catalog)     │
- │    • Live merchant search with real-time ground truth  │
- │    • Verified item IDs, titles, prices, and links      │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 3. CANDIDATE SELECTION (Gemini LLM)                    │
- │    • Model receives ONLY candidate IDs and titles      │
- │    • MODEL NEVER SEES OR DECIDES NUMERIC PRICES        │
- │    • Brand relevance guard prevents hallucinations     │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 4. DETERMINISTIC POLICY ENGINE (TypeScript)            │
- │    • Enforces integer-cent rules:                      │
- │      - Per-item cap:    $50.00 (5,000 cents)           │
- │      - Total budget:    $200.00 (20,000 cents)         │
- │      - Category filter: word-level matching            │
- │      - Absolute cap:    $500.00 ceiling                │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 5. POLICY VERDICT & HUMAN APPROVAL GATE                │
- │    ├── BLOCKED ───────► Red pill, violations listed    │
- │    ├── NEEDS APPROVAL ► User must tick confirmation    │
- │    └── WITHIN POLICY ─► Green pill, 1-click checkout   │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 6. SERVER-SIDE POLICY RE-CHECK                         │
- │    • Client sends ONLY { proposalId, confirmed }       │
- │    • Server re-evaluates stored basket against policy  │
- │    • 15-minute expiration rejects stale proposals      │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 7. PAYPAL SANDBOX CHECKOUT (REST API v2)               │
- │    • Idempotent order created in integer cents         │
- │    • User authorizes payment on PayPal Sandbox         │
- │    • Capture endpoint locks completion into audit log  │
- └───────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
- ┌────────────────────────────────────────────────────────┐
- │ 8. GOVERNANCE AUDIT LOG                                │
- │    • Server log of proposals, rules & PayPal Order ID  │
- └───────────────────────────┬────────────────────────────┘
-```
-
----
-
-## 🔀 03 — Multi-Stage Pipeline Flowchart
-
-Data flows in one direction, and payment execution is strictly gated by server-side validators:
+The system enforces a strict one-way pipeline: parse -> search -> pick by ID -> policy -> human approval -> PayPal sandbox -> audit log.
 
 ```mermaid
-sequenceDiagram
-  autonumber
-  actor User as Shopper / Manager
-  participant UI as Next.js Client
-  participant Agent as /api/agent (Server)
-  participant Gemini as Google Gemini
-  participant C3 as Channel3 API
-  participant Policy as Policy Engine (Pure TS)
-  participant Orders as /api/orders (Server)
-  participant PayPal as PayPal Sandbox API
-  participant Store as Audit Storage
-
-  User->>UI: Enter prompt & configure spending policy
-  UI->>Agent: POST { request, policy }
-  Agent->>Gemini: Stage 1: Parse intent (query, qty, maxPrice)
-  Gemini-->>Agent: Parsed intent JSON
-  Agent->>C3: Stage 2: Search live merchant catalog (USD only)
-  C3-->>Agent: Ground-truth products (ID, title, price, url)
-  Agent->>Gemini: Stage 3: Pick items strictly by ID (NO prices sent to model)
-  Gemini-->>Agent: ID-only picks array (or noGoodMatch)
-  Agent->>Policy: Stage 4: evaluate(products, policy)
-  Policy-->>Agent: Verdict (totalCents, allowed, violations, checks)
-  Agent->>Store: Save proposal (status: proposed/blocked)
-  Agent-->>UI: Return proposal + verdict
-  User->>UI: Review items & click "Approve & pay with PayPal"
-  UI->>Orders: POST { proposalId, confirmed }
-  Orders->>Store: Retrieve stored proposal by ID
-  Orders->>Orders: Check 15-minute expiration window
-  Orders->>Policy: Re-evaluate stored basket against policy
-  Policy-->>Orders: Verdict confirmed allowed
-  Orders->>PayPal: POST /v2/checkout/orders (brand_name, integer cents)
-  PayPal-->>Orders: Return approveUrl & orderId
-  Orders->>Store: Update proposal (order_created)
-  Orders-->>UI: Redirect user to PayPal Sandbox
-  User->>PayPal: Authorize sandbox payment
-  PayPal->>Orders: Callback (/api/paypal/return)
-  Orders->>PayPal: POST /v2/checkout/orders/{id}/capture
-  Orders->>Store: Update status to "captured"
-  Orders-->>UI: Redirect to /audit?highlight={id}
+flowchart LR
+  A[User Prompt] --> B[Parse Intent]
+  B --> C[Search Products]
+  C --> D[Pick by ID]
+  D --> E[Evaluate Policy]
+  E --> F{Within Policy?}
+  F -->|Blocked| G[Blocked Proposal]
+  F -->|Allowed| H[Human Approval Gate]
+  H --> I[PayPal Sandbox Order]
+  I --> J[Capture & Audit Log]
 ```
 
----
+1. **Parse**: Gemini extracts search keywords, desired quantity, and per-item budget constraints.
+2. **Search**: Searches live merchants via Channel3 API (or local catalog fallback), filtering offers strictly to USD.
+3. **Pick by ID**: Gemini selects candidates strictly by ID and title. The model never sees numeric prices. If no candidate matches a requested brand or product, it flags noGoodMatch.
+4. **Policy**: Pure TypeScript policy engine checks per-item cap, total budget, $500 hard ceiling, approval threshold, and word-level blocked categories (title, category, tags).
+5. **Human Approval**: If the basket total exceeds the approval threshold, checkout is locked until the user explicitly confirms the authorization checkbox.
+6. **PayPal Sandbox**: Server generates an order with integer cents and redirects the user to PayPal Sandbox checkout.
+7. **Audit Log**: The capture callback confirms payment and records the transaction with its PayPal Order ID in the server-side audit store.
 
-## 📸 04 — Product Walkthrough & Visual Proof
+## How AI Is Used
 
-### 1. Main Shopping Experience (Live Merchant Discovery)
-Shoppers can enter natural language requests or click suggested chips. Live merchant items from Channel3 display a **"Live Merchant"** badge with direct links to merchant pages.
+- Intent parsing: Extracts structured search parameters from untrusted user prompt text.
+- Product selection: Selects candidate IDs that best fulfill the request without access to price fields.
+- Relevance verification: Flags requests where catalog candidates do not match specific brand or model requirements.
+- Zero financial decision-making: The LLM never calculates prices, checks totals, evaluates discounts, or authorizes payments.
 
-<p align="center">
-  <img src="docs/screenshots/main-page.png" width="90%" alt="ApprovalPay Main Page with Live Merchant Search" />
-</p>
+## How PayPal Is Used
 
-### 2. Hard Policy Lockout (Blocked State)
-When a requested item violates category restrictions (e.g. alcohol) or exceeds the per-item cap, the policy engine locks checkout with bulleted violation notices and rule checklist flags.
+- PayPal Orders REST API v2 (`/v2/checkout/orders` and `/v2/checkout/orders/{id}/capture`).
+- Runs strictly against the PayPal Sandbox (`api-m.sandbox.paypal.com`).
+- Creates idempotent orders using proposal IDs as `PayPal-Request-Id`.
+- Sets experience context `brand_name: "ApprovalPay"` and `user_action: "PAY_NOW"`.
+- Executes server-side capture upon return callback and logs the order ID.
 
-<p align="center">
-  <img src="docs/screenshots/blocked-state.jpg" width="90%" alt="ApprovalPay Blocked Policy State" />
-</p>
+## Security Design
 
-### 3. PayPal Sandbox Checkout
-Seamless redirect to PayPal Sandbox with itemized breakdowns in exact USD integer cents and "ApprovalPay" brand experience context.
+- **Server-Side Secrets**: All credentials are loaded exclusively in Node.js via `src/lib/env.ts` (`server-only`). No client components access secrets, and no secrets use `NEXT_PUBLIC_`.
+- **Zod Validation**: All API bodies (`/api/agent`, `/api/orders`) and upstream responses are validated with strict Zod schemas.
+- **Server Re-Evaluates Stored Basket**: Client sends only `{ proposalId, confirmed }`. The server retrieves the proposal from local storage and re-evaluates the stored basket against the policy before calling PayPal.
+- **Integer Cents**: All monetary calculations use integer cents, preventing floating-point rounding errors.
+- **Idempotency Keys**: Both order creation and order capture send unique idempotency keys to prevent duplicate transactions.
+- **Rate Limiting**: In-memory sliding window rate limits protect both the agent and order endpoints.
+- **Approval-Host Verification**: Redirect URLs returned by PayPal are verified to terminate on `paypal.com` before redirecting the client.
+- **Proposal Expiry**: Proposals older than 15 minutes are rejected (`409 Conflict`), preventing checkout on stale baskets.
 
-<p align="center">
-  <img src="docs/screenshots/paypal-checkout.png" width="90%" alt="PayPal Sandbox Checkout Screen" />
-</p>
+## Setup
 
-### 4. Governance Audit Trail
-Every proposal, verdict, and PayPal capture ID is logged in an expandable audit trail with summary metrics, filter tabs, and transaction highlighting.
+Clone the repository and install dependencies:
 
-<p align="center">
-  <img src="docs/screenshots/audit-trail.png" width="90%" alt="ApprovalPay Governance Audit Trail" />
-</p>
-
----
-
-## 🛍️ 05 — Channel3 Live Merchant Discovery
-
-ApprovalPay integrates the **Channel3 Product Graph API** (`api.trychannel3.com`) to bridge autonomous agents with real-world e-commerce inventory:
-
-```typescript
-// src/lib/channel3.ts (Server-side only)
-export async function searchChannel3(query: string, maxPriceCents: number | null): Promise<Product[]> {
-  const e = env();
-  const res = await fetch("https://api.trychannel3.com/v1/search", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": e.CHANNEL3_API_KEY,
-    },
-    body: JSON.stringify({ query, limit: 20 }),
-    cache: "no-store",
-  });
-  // Validates with Zod, filters offers to USD currency only,
-  // extracts integer cents from offers, and drops non-positive prices.
-}
-```
-
-### Graceful Fallback Architecture
-If `CHANNEL3_API_KEY` is omitted or if network calls encounter rate limits, the system automatically falls back to the built-in ground-truth catalog (`src/lib/products.ts`), ensuring reliable demo readiness under all conditions.
-
----
-
-## ⚖️ 06 — Deterministic Spending Policy Engine
-
-The heart of ApprovalPay's trust model is pure TypeScript mathematics in [`src/lib/policy.ts`](file:///c:/Users/user/Documents/ApprovalPay/approvalpay/src/lib/policy.ts):
-
-```typescript
-export function evaluate(items: Product[], policy: Policy): Verdict {
-  const totalCents = items.reduce((s, i) => s + i.priceCents, 0);
-  const violations: string[] = [];
-
-  if (items.length === 0) violations.push("No items selected");
-
-  for (const i of items) {
-    if (i.priceCents > policy.perItemCapCents)
-      violations.push(`"${i.title}" ($${fmt(i.priceCents)}) exceeds the per-item cap of $${fmt(policy.perItemCapCents)}`);
-    for (const term of policy.blockedCategories) {
-      const word = matchBlocked(i, term);
-      if (word) {
-        violations.push(`"${i.title}" matches blocked term "${word}" (blocked: ${term})`);
-      }
-    }
-  }
-  if (totalCents > policy.totalBudgetCents)
-    violations.push(`Total $${fmt(totalCents)} exceeds the budget of $${fmt(policy.totalBudgetCents)}`);
-  if (totalCents > HARD_MAX_TOTAL_CENTS)
-    violations.push(`Total exceeds the hard system limit of $${fmt(HARD_MAX_TOTAL_CENTS)}`);
-
-  return {
-    totalCents,
-    allowed: violations.length === 0,
-    needsApproval: totalCents > policy.approvalThresholdCents,
-    violations,
-    checks: [...],
-  };
-}
-```
-
----
-
-## 💳 07 — PayPal Sandbox Integration
-
-ApprovalPay communicates directly with PayPal REST APIs without intermediaries:
-
-1. **Strict Sandbox Invariant**: Refuses to launch if `PAYPAL_BASE` points anywhere other than `api-m.sandbox.paypal.com`.
-2. **Idempotent Order Creation**: `PayPal-Request-Id: proposalId` ensures network retries never create duplicate charges.
-3. **Automatic Capture Lifecycle**: Redirects from Hermes checkout trigger `/api/paypal/return`, executing immediate capture and transitioning status from `order_created` &rarr; `captured`.
-4. **Branded Experience**: Injects `brand_name: "ApprovalPay"` inside `payment_source.paypal.experience_context`.
-
----
-
-## 🛡️ 08 — Security & Trust Architecture
-
-ApprovalPay enforces strict defense-in-depth principles:
-
-> [!CAUTION]
-> **Hard Security Rules Enforced in Code:**
-> 1. **Zero Client Secrets**: No `NEXT_PUBLIC_` prefixes on API keys. Secrets reside in `src/lib/env.ts` with `import "server-only"`.
-> 2. **Never Trust Client Prices**: The browser sends ONLY `{ proposalId, confirmed }`. The server re-evaluates the stored basket against policy before order creation.
-> 3. **Proposal Expiry**: Proposals older than 15 minutes are rejected (`409 Conflict`), preventing stale basket checkout.
-> 4. **Integer Cents Only**: No floating point roundoff errors (`$29.99` is strictly `2999`).
-> 5. **No Sensitive Logging**: Request headers, bearer tokens, and keys are never logged.
-> 6. **Open Redirect Defense**: Approval URLs are verified to end in `paypal.com`.
-
----
-
-## 📋 09 — Governance Audit Trail
-
-Every shopping proposal—whether allowed, flagged for review, blocked, or paid—is recorded in an audit log viewable at `/audit`.
-
-- **Top Summary Strip**: Live overview of Captured payments (count + $), Blocked count, Spend prevented ($), and Declined count.
-- **Filter Tabs**: Instant sorting across `All`, `Captured`, `Blocked`, and `Declined/Failed`.
-- **Expandable Rows (`<details>`)**: Review original intent, quantity, itemized prices, AI reasoning, and 4-rule checklist status.
-- **Transaction Highlighting**: Returning from PayPal automatically pins and illuminates the captured purchase (`?highlight={id}`).
-- **Local JSON Storage**: Stored locally in `data/audit.json`. On Render's Free tier, the container filesystem is ephemeral and resets on cold starts.
-
----
-
-## 🚀 10 — Quickstart & Environment Setup
-
-### 1. Clone & Install
 ```bash
 git clone https://github.com/ankush-dev-eng/ApprovalPay.git
 cd ApprovalPay
 npm install
 ```
 
-### 2. Configure Environment (`.env.local`)
-Create `.env.local` using variable names from `.env.example`:
+Copy the example environment configuration:
 
 ```bash
 cp .env.example .env.local
 ```
 
-| Variable Name | Description | Example / Allowed Values |
-|:---|:---|:---|
-| `PAYPAL_CLIENT_ID` | PayPal Sandbox Client ID | `your_sandbox_client_id` |
-| `PAYPAL_CLIENT_SECRET` | PayPal Sandbox Secret | `your_sandbox_secret` |
-| `PAYPAL_BASE` | PayPal Host (**Sandbox Only**) | `https://api-m.sandbox.paypal.com` |
-| `GEMINI_API_KEY` | Google AI Studio Key | `your_gemini_api_key` |
-| `GEMINI_MODEL` | Gemini Model Identifier | `gemini-2.5-flash` |
-| `APP_URL` | Application root URL | `http://localhost:3000` |
-| `CHANNEL3_API_KEY` | Channel3 API Key (*Optional*) | `your_channel3_api_key` |
-| `PAYPAL_MOCK_ERROR` | Simulate decline (*Optional*) | `INSTRUMENT_DECLINED` |
+Configure required environment variables in `.env.local` (reference names only, never commit values):
 
-*(Note: `.env.local` is ignored by Git and must never be committed).*
+- `PAYPAL_CLIENT_ID`
+- `PAYPAL_CLIENT_SECRET`
+- `PAYPAL_BASE` (must be `https://api-m.sandbox.paypal.com`)
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL`
+- `APP_URL`
+- `CHANNEL3_API_KEY` (optional)
+- `PAYPAL_MOCK_ERROR` (optional)
 
-### 3. Start Development Server
+Start the local server:
+
 ```bash
 npm run dev
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
----
+Open `http://localhost:3000` in your browser.
 
-## 🧪 11 — Verification & Testing
+## Tests
 
-Run the full verification suite locally:
+The project includes 26 Vitest tests covering deterministic spending policies, word-level category blocking, Channel3 USD currency filtering, proposal expiry, and selection relevance guards:
 
 ```bash
-# 1. Run Unit Tests (26 Vitest specs)
 npm test
+```
 
-# 2. Production Build Check
+Build verification and secret scanning:
+
+```bash
 npm run build
-
-# 3. Secret Scanner
 npm run secret-scan
 ```
 
-### Test Suite Summary
-```text
- ✓ src/lib/__tests__/policy.test.ts    (11 tests)
- ✓ src/lib/__tests__/channel3.test.ts  (6 tests)
- ✓ src/lib/__tests__/products.test.ts  (3 tests)
- ✓ src/lib/__tests__/agent.test.ts     (3 tests)
- ✓ src/lib/__tests__/orders.test.ts    (3 tests)
+## Limitations
 
- Test Files  5 passed (5)
-      Tests  26 passed (26)
-```
-
----
-
-## ⚠️ 12 — Scope & Limitations
-
-1. **PayPal Sandbox**: Built strictly for PayPal Sandbox testing with test buyer accounts. Real currency is never processed.
-2. **Ephemeral Audit Storage**: Uses local serialized JSON storage (`data/audit.json`). On Render's free tier, the container disk resets on cold starts. In production, this would be backed by PostgreSQL or DynamoDB.
-3. **Currency**: Single-currency USD integer cents for this submission.
-4. **Client-Configured Spending Policy**: The spending policy is currently configured and saved in the browser for demonstration flexibility; a real production deployment would store and enforce spending policies server-side per organization or role.
-
----
-
-## 📄 13 — License
-
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete terms.
-
-<div align="center">
-
-<hr />
-
-<br/>
-
-### ApprovalPay
-
-**ZERO FINANCIAL LEAKS • DETERMINISTIC AI COMMERCE • PAYPAL SANDBOX**
-
-<br/>
-
-</div>
+- **Sandbox Only**: Runs strictly on PayPal Sandbox; real currency is never processed.
+- **Ephemeral Audit Storage**: The audit trail is saved to a local file (`data/audit.json`), which resets when Render's free tier container sleeps.
+- **Client Policy Configuration**: Spending policy parameters are set in the browser UI for demonstration; an enterprise deployment would enforce policies server-side per organization or role.
+- **Shipping & Tax Excluded**: Item totals evaluate catalog prices only; shipping and sales taxes are excluded from policy caps.
+- **Sandbox Store Recipient**: Checkout pays the configured sandbox test store, not the third-party merchant.
