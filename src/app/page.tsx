@@ -137,12 +137,17 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white py-6 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>
-            ApprovalPay &bull; PayPal AI Hackathon &bull; Autonomous governance architecture
-          </p>
-          <p>
-            Zero financial leaks: prices and verdicts are code-enforced, never LLM-decided.
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2 text-xs text-slate-500 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="font-medium text-slate-600">
+              ApprovalPay &bull; PayPal AI Hackathon &bull; Autonomous governance architecture
+            </p>
+            <p>
+              Zero financial leaks: prices and verdicts are code-enforced, never LLM-decided.
+            </p>
+          </div>
+          <p className="text-[11px] text-slate-400">
+            Sandbox payments only. Real merchant products are shown for demonstration; checkout pays the sandbox store.
           </p>
         </div>
       </footer>

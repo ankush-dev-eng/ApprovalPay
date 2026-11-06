@@ -44,10 +44,36 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
   }
 
   if (proposal.items.length === 0) {
+    const noMatchViolation = proposal.verdict.violations.find((v) =>
+      v.toLowerCase().includes("no close match")
+    );
+
+    if (noMatchViolation) {
+      const reason = noMatchViolation.replace(/^no close match:?\s*/i, "").trim();
+      return (
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 text-center shadow-xs">
+          <div className="mx-auto h-12 w-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center mb-3">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </div>
+          <h3 className="text-base font-semibold text-slate-800">No close match found</h3>
+          <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
+            {reason || "No catalog candidate matches the requested product or brand specifications."}
+          </p>
+        </div>
+      );
+    }
+
     return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-6 text-center">
-        <h3 className="text-sm font-semibold text-rose-800">No matching products found</h3>
-        <p className="text-xs text-rose-600 mt-1">
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xs">
+        <div className="mx-auto h-12 w-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center mb-3">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-slate-800">No matching products found</h3>
+        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
           Try adjusting your search keywords or increasing the per-item budget cap in the spending policy.
         </p>
       </div>

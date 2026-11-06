@@ -94,6 +94,7 @@ export function evaluate(items: Product[], policy: Policy): Verdict {
   }
 
   const thresholdPassed = totalCents <= policy.approvalThresholdCents;
+  const maxItemPrice = items.length > 0 ? Math.max(...items.map((i) => i.priceCents)) : 0;
 
   const checks = [
     {
@@ -103,8 +104,8 @@ export function evaluate(items: Product[], policy: Policy): Verdict {
         items.length === 0
           ? "No items selected"
           : itemCapPassed
-          ? `All items are within the $${fmt(policy.perItemCapCents)} per-item cap`
-          : `One or more items exceed the $${fmt(policy.perItemCapCents)} per-item cap`,
+          ? `Per-item cap $${fmt(policy.perItemCapCents)}: highest item $${fmt(maxItemPrice)}`
+          : `Per-item cap $${fmt(policy.perItemCapCents)}: highest item $${fmt(maxItemPrice)} exceeds cap`,
     },
     {
       rule: "total budget",
@@ -113,22 +114,22 @@ export function evaluate(items: Product[], policy: Policy): Verdict {
         items.length === 0
           ? "No items selected"
           : budgetPassed
-          ? `Total $${fmt(totalCents)} is within the $${fmt(policy.totalBudgetCents)} budget`
-          : `Total $${fmt(totalCents)} exceeds the $${fmt(policy.totalBudgetCents)} budget`,
+          ? `Total budget $${fmt(policy.totalBudgetCents)}: cart total $${fmt(totalCents)}`
+          : `Total budget $${fmt(policy.totalBudgetCents)}: cart total $${fmt(totalCents)} exceeds budget`,
     },
     {
       rule: "blocked categories",
       passed: blockedPassed,
       detail: blockedPassed
-        ? "No items match blocked categories or terms"
-        : blockedDetails.join("; "),
+        ? `Blocked categories (${policy.blockedCategories.join(", ") || "none"}): clean`
+        : `Blocked categories: ${blockedDetails.join("; ")}`,
     },
     {
       rule: "approval threshold",
       passed: thresholdPassed,
       detail: thresholdPassed
-        ? `Total $${fmt(totalCents)} is within the $${fmt(policy.approvalThresholdCents)} auto-approval limit`
-        : `Total $${fmt(totalCents)} exceeds the $${fmt(policy.approvalThresholdCents)} threshold (requires sign-off)`,
+        ? `Approval threshold $${fmt(policy.approvalThresholdCents)}: total $${fmt(totalCents)} (auto-approved)`
+        : `Approval threshold $${fmt(policy.approvalThresholdCents)}: total $${fmt(totalCents)} (sign-off required)`,
     },
   ];
 

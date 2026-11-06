@@ -29,10 +29,16 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
 
   const { verdict } = proposal;
   const isCaptured = proposal.status === "captured";
-  const canProceed = verdict.allowed && (!verdict.needsApproval || confirmed) && !isCheckingOut && !isLoadingAgent && !isCaptured;
+  const canProceed =
+    verdict.allowed &&
+    (!verdict.needsApproval || confirmed) &&
+    !isCheckingOut &&
+    !isLoadingAgent &&
+    !isCaptured;
 
   const handlePay = async () => {
-    if (!canProceed) return;
+    // Prevent double submits
+    if (!canProceed || isCheckingOut) return;
     setIsCheckingOut(true);
     setOrderError(null);
 
@@ -141,11 +147,62 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
         )}
       </div>
 
+      {/* Rules checked list (under the status pill, shown for allowed, approval, and blocked states) */}
+      {verdict.checks && verdict.checks.length > 0 && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              Rules checked
+            </h3>
+            <span className="text-[10px] text-slate-400 font-medium">
+              {verdict.checks.filter((c) => c.passed).length}/{verdict.checks.length} passed
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            {verdict.checks.map((c) => (
+              <div
+                key={c.rule}
+                className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white border border-slate-100 text-xs shadow-2xs"
+              >
+                <div className="flex items-start gap-2 min-w-0">
+                  {c.passed ? (
+                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-emerald-100 text-emerald-700 shrink-0 mt-0.5" title="Rule passed">
+                      <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-rose-100 text-rose-700 shrink-0 mt-0.5" title="Rule violated or flagged">
+                      <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <span className="font-semibold text-slate-800 capitalize block truncate">{c.rule}</span>
+                    <p className="text-[11px] text-slate-500 leading-tight mt-0.5">{c.detail}</p>
+                  </div>
+                </div>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 uppercase ${
+                    c.passed
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-rose-50 text-rose-700 border border-rose-200"
+                  }`}
+                >
+                  {c.passed ? "Pass" : "Cross"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Cart Summary & Total */}
       <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 flex items-center justify-between">
         <div>
           <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
-            Total Proposal Amount
+            Item total (excl. shipping &amp; tax)
           </span>
           <p className="text-xs text-slate-400 mt-0.5">
             {proposal.items.length} item{proposal.items.length === 1 ? "" : "s"}
@@ -158,49 +215,6 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
           <span className="block text-[10px] text-slate-400 font-mono">USD</span>
         </div>
       </div>
-
-      {/* Policy Rule Checklist */}
-      {verdict.checks && verdict.checks.length > 0 && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Rule Checklist
-            </h3>
-            <span className="text-[10px] text-slate-400 font-medium">4 code-enforced rules</span>
-          </div>
-          <div className="space-y-1.5">
-            {verdict.checks.map((c) => (
-              <div
-                key={c.rule}
-                className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white border border-slate-100 text-xs shadow-2xs"
-              >
-                <div className="flex items-start gap-2">
-                  <span
-                    className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[10px] font-bold shrink-0 mt-0.5 ${
-                      c.passed ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {c.passed ? "✓" : "!"}
-                  </span>
-                  <div>
-                    <span className="font-semibold text-slate-800 capitalize">{c.rule}</span>
-                    <p className="text-[11px] text-slate-500 leading-tight">{c.detail}</p>
-                  </div>
-                </div>
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 uppercase ${
-                    c.passed
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-amber-50 text-amber-700 border border-amber-200"
-                  }`}
-                >
-                  {c.passed ? "Pass" : "Flag"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Explicit approval checkbox if required */}
       {!isCaptured && verdict.allowed && verdict.needsApproval && (
@@ -225,9 +239,11 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
 
       {/* Inline Order Error */}
       {orderError && (
-        <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 flex items-start gap-2">
-          <span className="text-rose-500 font-bold">&times;</span>
-          <p>{orderError}</p>
+        <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 flex items-start gap-2 shadow-xs">
+          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-rose-200 text-rose-800 font-bold text-[10px] shrink-0 mt-0.5">
+            !
+          </span>
+          <p className="font-medium">{orderError}</p>
         </div>
       )}
 
@@ -241,16 +257,16 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
           <button
             type="button"
             onClick={handlePay}
-            disabled={!canProceed}
+            disabled={!canProceed || isCheckingOut}
             className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-base font-bold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all"
           >
             {isCheckingOut ? (
               <span className="inline-flex items-center gap-2">
                 <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                <span>Connecting to PayPal Sandbox...</span>
+                <span>Redirecting to PayPal...</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-2">
