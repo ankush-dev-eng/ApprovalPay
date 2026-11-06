@@ -11,6 +11,7 @@ const EXAMPLES = [
   "3 gifts under $50 each for my team",
   "a bottle of whiskey for the office party",
   "an office desk setup under $100 total",
+  "kreo mouse pad",
 ];
 
 export function AgentInput({ request, setRequest, onSubmit, isLoading }: AgentInputProps) {
