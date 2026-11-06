@@ -151,4 +151,58 @@ describe("Channel3 product mapping", () => {
       expect(mapped?.url).toBe("https://us.example.com/gadget");
     });
   });
+
+  describe("image URL extraction", () => {
+    it("maps valid https image URL, preferring cleaned_url over url", () => {
+      const sample = {
+        id: "p_img1",
+        title: "Sneakers",
+        price: 80,
+        images: [
+          {
+            url: "https://example.com/raw.jpg",
+            cleaned_url: "https://example.com/clean.jpg",
+            is_main_image: true,
+          },
+        ],
+      };
+
+      const mapped = mapChannel3Product(sample);
+      expect(mapped?.imageUrl).toBe("https://example.com/clean.jpg");
+    });
+
+    it("falls back to standard url if cleaned_url is absent", () => {
+      const sample = {
+        id: "p_img2",
+        title: "Sneakers",
+        price: 80,
+        images: [
+          {
+            url: "https://example.com/hero.jpg",
+            is_main_image: true,
+          },
+        ],
+      };
+
+      const mapped = mapChannel3Product(sample);
+      expect(mapped?.imageUrl).toBe("https://example.com/hero.jpg");
+    });
+
+    it("rejects non-https URLs (drops http:// images)", () => {
+      const sample = {
+        id: "p_img3",
+        title: "Insecure Image Product",
+        price: 40,
+        images: [
+          {
+            url: "http://insecure.example.com/pic.jpg",
+            cleaned_url: "http://insecure.example.com/clean.jpg",
+          },
+        ],
+      };
+
+      const mapped = mapChannel3Product(sample);
+      expect(mapped?.imageUrl).toBeUndefined();
+    });
+  });
 });

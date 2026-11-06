@@ -11,7 +11,7 @@ interface AuditViewProps {
   errorParam?: string;
 }
 
-type FilterTab = "all" | "captured" | "blocked" | "declined_failed";
+type FilterTab = "all" | "captured" | "blocked" | "no_match" | "declined_failed";
 
 const FIFTEEN_MINUTES_MS = 15 * 60 * 1000;
 
@@ -40,7 +40,14 @@ function formatClientTime(iso: string): string {
   }
 }
 
-function policyPill(verdict: Verdict) {
+function policyPill(verdict: Verdict, status?: ProposalStatus | "expired") {
+  if (status === "no_match") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+        <span>No match</span>
+      </span>
+    );
+  }
   if (!verdict.allowed) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-600/20">
@@ -112,6 +119,12 @@ function statusPill(status: ProposalStatus | "expired") {
           blocked
         </span>
       );
+    case "no_match":
+      return (
+        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 border border-slate-200">
+          no_match
+        </span>
+      );
     case "declined":
       return (
         <span className="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-1 text-xs font-bold text-rose-800">
@@ -139,6 +152,49 @@ function statusPill(status: ProposalStatus | "expired") {
   }
 }
 
+function IdBadge({ id, label }: { id: string; label?: string }) {
+  const [copied, setCopied] = useState(false);
+  const shortId = id.slice(0, 8);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard fallback
+    }
+  };
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 font-mono text-xs text-slate-700 bg-slate-100 hover:bg-slate-200/80 px-2 py-0.5 rounded transition-colors select-all"
+      title={`Full ${label ?? "ID"}: ${id}`}
+    >
+      <span>{shortId}</span>
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="text-slate-400 hover:text-slate-700 focus:outline-none p-0.5 rounded transition-colors cursor-pointer"
+        title={copied ? "Copied!" : `Copy full ${label ?? "ID"}`}
+        aria-label={`Copy ${label ?? "ID"}`}
+      >
+        {copied ? (
+          <svg className="h-3 w-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        )}
+      </button>
+    </span>
+  );
+}
+
 export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps) {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
 
@@ -147,9 +203,13 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
   const capturedCount = capturedList.length;
   const capturedTotalCents = capturedList.reduce((sum, p) => sum + p.verdict.totalCents, 0);
 
-  const blockedList = proposals.filter((p) => p.status === "blocked" || !p.verdict.allowed);
+  // "Blocked by policy" counts only status "blocked"; "Spend prevented" sums only blocked totals; no_match is excluded from both.
+  const blockedList = proposals.filter((p) => p.status === "blocked");
   const blockedCount = blockedList.length;
   const spendPreventedCents = blockedList.reduce((sum, p) => sum + p.verdict.totalCents, 0);
+
+  const noMatchList = proposals.filter((p) => p.status === "no_match");
+  const noMatchCount = noMatchList.length;
 
   const declinedList = proposals.filter(
     (p) => p.status === "declined" || p.status === "failed"
@@ -160,7 +220,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
   const filteredProposals = proposals.filter((p) => {
     const effective = getEffectiveStatus(p);
     if (activeTab === "captured") return effective === "captured";
-    if (activeTab === "blocked") return effective === "blocked" || !p.verdict.allowed;
+    if (activeTab === "blocked") return effective === "blocked";
+    if (activeTab === "no_match") return effective === "no_match";
     if (activeTab === "declined_failed")
       return effective === "declined" || effective === "failed" || effective === "cancelled";
     return true;
@@ -207,8 +268,10 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
               </span>
               <div>
                 <h3 className="text-sm font-bold text-emerald-950">Payment captured</h3>
-                <p className="text-xs text-emerald-800 mt-0.5">
-                  Highlighted proposal <span className="font-mono font-semibold">{highlightId.slice(0, 8)}</span> has been updated below.
+                <p className="text-xs text-emerald-800 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span>Highlighted proposal</span>
+                  <IdBadge id={highlightId} label="Proposal ID" />
+                  <span>has been updated below.</span>
                 </p>
               </div>
             </div>
@@ -223,8 +286,10 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
               </span>
               <div>
                 <h3 className="text-sm font-bold text-rose-950">Payment declined by PayPal</h3>
-                <p className="text-xs text-rose-800 mt-0.5">
-                  Proposal <span className="font-mono font-semibold">{highlightId.slice(0, 8)}</span> was declined by the payment provider.
+                <p className="text-xs text-rose-800 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span>Proposal</span>
+                  <IdBadge id={highlightId} label="Proposal ID" />
+                  <span>was declined by the payment provider.</span>
                 </p>
               </div>
             </div>
@@ -239,8 +304,10 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
               </span>
               <div>
                 <h3 className="text-sm font-bold text-slate-900">Checkout cancelled</h3>
-                <p className="text-xs text-slate-700 mt-0.5">
-                  The PayPal checkout session for proposal <span className="font-mono font-semibold">{highlightId.slice(0, 8)}</span> was cancelled by user.
+                <p className="text-xs text-slate-700 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span>The PayPal checkout session for proposal</span>
+                  <IdBadge id={highlightId} label="Proposal ID" />
+                  <span>was cancelled by user.</span>
                 </p>
               </div>
             </div>
@@ -255,8 +322,10 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
               </span>
               <div>
                 <h3 className="text-sm font-bold text-amber-950">Something went wrong</h3>
-                <p className="text-xs text-amber-800 mt-0.5">
-                  Proposal <span className="font-mono font-semibold">{highlightId.slice(0, 8)}</span> encountered an issue during processing.
+                <p className="text-xs text-amber-800 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span>Proposal</span>
+                  <IdBadge id={highlightId} label="Proposal ID" />
+                  <span>encountered an issue during processing.</span>
                 </p>
               </div>
             </div>
@@ -271,8 +340,10 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
               </span>
               <div>
                 <h3 className="text-sm font-bold text-blue-950">Awaiting payment</h3>
-                <p className="text-xs text-blue-800 mt-0.5">
-                  PayPal order created for proposal <span className="font-mono font-semibold">{highlightId.slice(0, 8)}</span>. Awaiting buyer confirmation.
+                <p className="text-xs text-blue-800 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span>PayPal order created for proposal</span>
+                  <IdBadge id={highlightId} label="Proposal ID" />
+                  <span>Awaiting buyer confirmation.</span>
                 </p>
               </div>
             </div>
@@ -416,6 +487,17 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("no_match")}
+            className={`px-3 py-1.5 rounded-lg transition-all ${
+              activeTab === "no_match"
+                ? "bg-white text-slate-800 font-bold shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            No match <span className="ml-1 text-[10px] text-slate-500 font-normal">({noMatchCount})</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("declined_failed")}
             className={`px-3 py-1.5 rounded-lg transition-all ${
               activeTab === "declined_failed"
@@ -444,18 +526,19 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+        <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full min-w-[980px] text-left border-collapse table-auto">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Time</th>
+                  <th scope="col" className="px-4 py-3 whitespace-nowrap">Proposal ID</th>
                   <th scope="col" className="px-4 py-3">Request</th>
                   <th scope="col" className="px-4 py-3">Items</th>
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Total ($)</th>
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Policy result</th>
                   <th scope="col" className="px-4 py-3 whitespace-nowrap">Status</th>
-                  <th scope="col" className="px-4 py-3 whitespace-nowrap">PayPal order id</th>
+                  <th scope="col" className="px-4 py-3 whitespace-nowrap min-w-[150px]">PayPal Order ID</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 text-xs">
@@ -463,9 +546,6 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                   const effectiveStatus = getEffectiveStatus(p);
                   const isHighlighted = p.id === highlightId;
                   const itemTitles = p.items.map((i) => i.product.title).join(", ");
-                  const truncatedOrderId = p.orderId
-                    ? `${p.orderId.slice(0, 10)}…`
-                    : "—";
 
                   return (
                     <Fragment key={p.id}>
@@ -479,23 +559,30 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                         <td className="px-4 py-3.5 whitespace-nowrap text-slate-500">
                           {formatClientTime(p.createdAt)}
                         </td>
+                        <td className="px-4 py-3.5 whitespace-nowrap">
+                          <IdBadge id={p.id} label="Proposal ID" />
+                        </td>
                         <td className="px-4 py-3.5 font-medium text-slate-900 max-w-xs truncate" title={p.request}>
                           {p.request}
                         </td>
                         <td className="px-4 py-3.5 text-slate-600 max-w-xs truncate" title={itemTitles || "No items"}>
                           {itemTitles || <span className="text-slate-400 italic">No items</span>}
                         </td>
-                        <td className="px-4 py-3.5 whitespace-nowrap font-bold font-mono text-slate-900">
+                        <td className="px-4 py-3.5 whitespace-nowrap font-bold font-mono text-slate-900 tabular-nums">
                           ${fmt(p.verdict.totalCents)}
                         </td>
                         <td className="px-4 py-3.5 whitespace-nowrap">
-                          {policyPill(p.verdict)}
+                          {policyPill(p.verdict, effectiveStatus)}
                         </td>
                         <td className="px-4 py-3.5 whitespace-nowrap">
                           {statusPill(effectiveStatus)}
                         </td>
-                        <td className="px-4 py-3.5 whitespace-nowrap font-mono text-slate-600" title={p.orderId ?? undefined}>
-                          {truncatedOrderId}
+                        <td className="px-4 py-3.5 whitespace-nowrap min-w-[150px]">
+                          {p.orderId ? (
+                            <IdBadge id={p.orderId} label="PayPal Order ID" />
+                          ) : (
+                            <span className="text-slate-400 font-mono">—</span>
+                          )}
                         </td>
                       </tr>
 
@@ -505,7 +592,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                           isHighlighted ? "bg-emerald-50/40" : "bg-slate-50/40"
                         }`}
                       >
-                        <td colSpan={7} className="px-4 py-1.5">
+                        <td colSpan={8} className="px-4 py-1.5 max-w-full">
                           <details
                             className="group py-1"
                             open={isHighlighted}
@@ -523,7 +610,7 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                               </svg>
                             </summary>
 
-                            <div className="mt-2.5 mb-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5">
+                            <div className="mt-2.5 mb-3 rounded-xl border border-slate-200 bg-white p-4 shadow-xs space-y-3.5 max-w-full overflow-hidden">
                               {/* Parsed query & quantity */}
                               <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 pb-2.5 border-b border-slate-100 text-xs">
                                 <div>
@@ -537,13 +624,14 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                                 {p.parsed.maxPricePerItemCents !== null && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Max price/item:</span>{" "}
-                                    <span className="text-slate-900 font-semibold font-mono">
+                                    <span className="text-slate-900 font-semibold font-mono tabular-nums">
                                       ${fmt(p.parsed.maxPricePerItemCents)}
                                     </span>
                                   </div>
                                 )}
-                                <div className="text-[11px] text-slate-400 font-mono ml-auto">
-                                  ID: {p.id}
+                                <div className="text-[11px] text-slate-500 font-mono ml-auto flex items-center gap-1.5">
+                                  <span>Proposal ID:</span>
+                                  <IdBadge id={p.id} label="Proposal ID" />
                                 </div>
                               </div>
 
@@ -613,8 +701,8 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                                 </div>
                               )}
 
-                              {/* Policy violations if any */}
-                              {p.verdict.violations.length > 0 && (
+                              {/* Policy violations or reason if no_match */}
+                              {p.verdict.violations.length > 0 && p.status !== "no_match" && (
                                 <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-rose-800 space-y-1">
                                   <span className="font-bold text-xs text-rose-900 block">Policy violations:</span>
                                   <ul className="space-y-1 text-xs">
@@ -625,6 +713,14 @@ export function AuditView({ proposals, highlightId, errorParam }: AuditViewProps
                                       </li>
                                     ))}
                                   </ul>
+                                </div>
+                              )}
+                              {p.status === "no_match" && p.verdict.violations.length > 0 && (
+                                <div className="rounded-lg bg-slate-100 border border-slate-200 p-3 text-slate-700 space-y-1">
+                                  <span className="font-bold text-xs text-slate-800 block">Reason:</span>
+                                  <p className="text-xs text-slate-600">
+                                    {p.verdict.violations[0].replace(/^No close match:\s*/i, "")}
+                                  </p>
                                 </div>
                               )}
 

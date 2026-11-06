@@ -37,15 +37,35 @@ describe("Agent selection relevance guard schema", () => {
     }
   });
 
-  it("defaults noGoodMatch and noMatchReason when omitted", () => {
-    const minimal = {
+  it("validates noGoodMatch with second person reason", () => {
+    const noMatch = {
       picks: [],
+      noGoodMatch: true,
+      noMatchReason: "You asked for Phantom Blade Zero, but catalog candidates only offer gaming peripherals.",
     };
-    const parsed = PicksSchema.safeParse(minimal);
+    const parsed = PicksSchema.safeParse(noMatch);
     expect(parsed.success).toBe(true);
     if (parsed.success) {
-      expect(parsed.data.noGoodMatch).toBe(false);
-      expect(parsed.data.noMatchReason).toBe("");
+      expect(parsed.data.noGoodMatch).toBe(true);
+      expect(parsed.data.noMatchReason.startsWith("You asked for")).toBe(true);
+    }
+  });
+
+  it("validates picks with concise second person attribute reason", () => {
+    const pick = {
+      picks: [
+        {
+          id: "prod_1",
+          reason: "Matches your request with durable stitched edges and smooth micro-weave cloth.",
+        },
+      ],
+      noGoodMatch: false,
+    };
+    const parsed = PicksSchema.safeParse(pick);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      const words = parsed.data.picks[0].reason.split(/\s+/).length;
+      expect(words).toBeLessThanOrEqual(20);
     }
   });
 });

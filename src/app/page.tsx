@@ -9,7 +9,7 @@ import { VerdictPanel } from "@/components/VerdictPanel";
 import type { Policy, Proposal } from "@/lib/types";
 import { DEFAULT_POLICY } from "@/lib/policy";
 
-const POLICY_STORAGE_KEY = "approvalpay.policy";
+const POLICY_STORAGE_KEY = "approvalpay.policy.v2";
 
 export default function Home() {
   const [request, setRequest] = useState("");
@@ -79,10 +79,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-x-hidden">
         {/* Error banner */}
         {errorMessage && (
           <div className="mb-6 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-rose-800 flex items-start justify-between gap-3 shadow-sm">
@@ -109,7 +109,7 @@ export default function Home() {
         {/* Two-column layout on desktop, stacked on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT COLUMN: Input & Curated Products */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-6 min-w-0">
             <AgentInput
               request={request}
               setRequest={setRequest}
@@ -121,7 +121,7 @@ export default function Home() {
           </div>
 
           {/* RIGHT COLUMN: Spending Policy & Verdict */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 min-w-0">
             <PolicyPanel
               policy={policy}
               onChange={handlePolicyChange}
@@ -138,14 +138,9 @@ export default function Home() {
 
       <footer className="border-t border-slate-200 bg-white py-6 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2 text-xs text-slate-500 text-center sm:text-left">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="font-medium text-slate-600">
-              ApprovalPay &bull; PayPal AI Hackathon &bull; Autonomous governance architecture
-            </p>
-            <p>
-              Zero financial leaks: prices and verdicts are code-enforced, never LLM-decided.
-            </p>
-          </div>
+          <p className="font-semibold text-slate-700 text-sm">
+            ApprovalPay &middot; PayPal AI Hackathon
+          </p>
           <p className="text-[11px] text-slate-400">
             Sandbox payments only. Real merchant products are shown for demonstration; checkout pays the sandbox store.
           </p>

@@ -69,7 +69,7 @@ export function PolicyPanel({ policy, onChange, disabled }: PolicyPanelProps) {
       <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
         <div>
           <h2 className="text-base font-bold text-slate-900">Spending Policy</h2>
-          <p className="text-xs text-slate-500">Autonomous governance rules enforced by code</p>
+          <p className="text-xs text-slate-500">Spending rules the AI can&apos;t override</p>
         </div>
         <button
           type="button"

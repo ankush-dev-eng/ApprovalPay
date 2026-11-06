@@ -21,6 +21,14 @@ export const Channel3OfferSchema = z.object({
   condition: z.string().optional().nullable(),
 });
 
+export const Channel3ImageSchema = z.object({
+  url: z.string().optional().nullable(),
+  cleaned_url: z.string().optional().nullable(),
+  is_main_image: z.boolean().optional().nullable(),
+  shot_type: z.string().optional().nullable(),
+  alt_text: z.string().optional().nullable(),
+});
+
 export const Channel3ProductSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -35,6 +43,7 @@ export const Channel3ProductSchema = z.object({
     .optional()
     .nullable(),
   url: z.string().optional().nullable(),
+  images: z.array(z.union([z.string(), Channel3ImageSchema])).optional().nullable(),
   offers: z.array(Channel3OfferSchema).optional().nullable(),
   price: Channel3OfferPriceSchema.optional().nullable(),
 });
@@ -58,6 +67,30 @@ export function getProductCurrency(raw: z.infer<typeof Channel3ProductSchema>): 
     return raw.price.currency.trim().toUpperCase();
   }
   return null;
+}
+
+export function extractImageUrl(raw: z.infer<typeof Channel3ProductSchema>): string | undefined {
+  if (!raw.images || !Array.isArray(raw.images) || raw.images.length === 0) {
+    return undefined;
+  }
+
+  const imageObjects = raw.images.filter(
+    (img): img is z.infer<typeof Channel3ImageSchema> => typeof img === "object" && img !== null
+  );
+
+  let candidate: string | undefined;
+  if (imageObjects.length > 0) {
+    const main = imageObjects.find((img) => img.is_main_image === true) ?? imageObjects[0];
+    candidate = main.cleaned_url || main.url || undefined;
+  } else if (typeof raw.images[0] === "string") {
+    candidate = raw.images[0];
+  }
+
+  // Only accept https URLs
+  if (candidate && typeof candidate === "string" && candidate.trim().startsWith("https://")) {
+    return candidate.trim();
+  }
+  return undefined;
 }
 
 export function extractPriceAndOffer(
@@ -131,6 +164,7 @@ export function mapChannel3Product(rawItem: unknown): Product | null {
   }
 
   const url = priceInfo.url ?? item.url ?? undefined;
+  const imageUrl = extractImageUrl(item);
 
   return {
     id: `c3_${item.id}`,
@@ -138,6 +172,7 @@ export function mapChannel3Product(rawItem: unknown): Product | null {
     priceCents,
     category,
     ...(url ? { url } : {}),
+    ...(imageUrl ? { imageUrl } : {}),
   };
 }
 

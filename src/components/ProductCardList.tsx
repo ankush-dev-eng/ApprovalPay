@@ -1,4 +1,7 @@
-import type { Proposal } from "@/lib/types";
+"use client";
+
+import { useState } from "react";
+import type { Product, Proposal } from "@/lib/types";
 import { fmt } from "@/lib/money";
 
 interface ProductCardListProps {
@@ -6,20 +9,89 @@ interface ProductCardListProps {
   isLoading: boolean;
 }
 
+function ProductThumbnail({ src, alt }: { src?: string; alt: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!src || hasError) {
+    return (
+      <div
+        className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0"
+        aria-hidden="true"
+      >
+        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setHasError(true)}
+      className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-50"
+      loading="lazy"
+    />
+  );
+}
+
+function getBrandOrMerchant(product: Product): string {
+  if (product.brand) return product.brand;
+  if (product.merchant) return product.merchant;
+  if (product.url) {
+    try {
+      const host = new URL(product.url).hostname.replace(/^www\./i, "");
+      if (host && !host.includes("example.com")) {
+        const domainParts = host.split(".");
+        const brandName = domainParts[0];
+        return brandName.charAt(0).toUpperCase() + brandName.slice(1);
+      }
+    } catch {
+      // ignore invalid URL
+    }
+  }
+  // Try first word of title if capitalized brand
+  const firstWord = product.title.trim().split(/\s+/)[0];
+  if (firstWord && firstWord.length > 2 && /^[A-Z][a-zA-Z0-9]+$/.test(firstWord)) {
+    return firstWord;
+  }
+  return product.category;
+}
+
 export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-6 w-48 bg-slate-200 rounded animate-pulse" />
+      <div className="space-y-3" aria-busy="true" aria-label="Loading recommendations">
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-44 bg-slate-200 rounded animate-pulse" />
+          <div className="h-3 w-28 bg-slate-100 rounded animate-pulse" />
+        </div>
         <div className="grid gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="p-4 bg-white border border-slate-200 rounded-xl space-y-2 animate-pulse">
-              <div className="flex justify-between">
-                <div className="h-5 w-40 bg-slate-200 rounded" />
-                <div className="h-5 w-16 bg-slate-200 rounded" />
+            <div
+              key={i}
+              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm animate-pulse"
+            >
+              <div className="flex items-start gap-3.5">
+                {/* 64px image thumbnail skeleton */}
+                <div className="w-16 h-16 rounded-xl bg-slate-200 shrink-0" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-5 w-2/3 bg-slate-200 rounded" />
+                    <div className="h-5 w-16 bg-slate-200 rounded shrink-0" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-16 bg-slate-100 rounded-md" />
+                    <div className="h-4 w-20 bg-slate-100 rounded-md" />
+                  </div>
+                  <div className="h-3.5 w-5/6 bg-slate-100 rounded" />
+                </div>
               </div>
-              <div className="h-4 w-24 bg-slate-100 rounded" />
-              <div className="h-4 w-3/4 bg-slate-100 rounded" />
             </div>
           ))}
         </div>
@@ -43,13 +115,18 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
     );
   }
 
-  if (proposal.items.length === 0) {
+  if (proposal.status === "no_match" || proposal.items.length === 0) {
     const noMatchViolation = proposal.verdict.violations.find((v) =>
       v.toLowerCase().includes("no close match")
     );
 
-    if (noMatchViolation) {
-      const reason = noMatchViolation.replace(/^no close match:?\s*/i, "").trim();
+    if (proposal.status === "no_match" || noMatchViolation) {
+      const reason = (
+        noMatchViolation
+          ? noMatchViolation.replace(/^no close match:?\s*/i, "").trim()
+          : proposal.verdict.violations[0]?.replace(/^no close match:?\s*/i, "").trim()
+      ) || "No catalog candidate matches the requested product or brand specifications.";
+
       return (
         <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 text-center shadow-xs">
           <div className="mx-auto h-12 w-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center mb-3">
@@ -59,7 +136,7 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
           </div>
           <h3 className="text-base font-semibold text-slate-800">No close match found</h3>
           <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
-            {reason || "No catalog candidate matches the requested product or brand specifications."}
+            {reason}
           </p>
         </div>
       );
@@ -94,62 +171,78 @@ export function ProductCardList({ proposal, isLoading }: ProductCardListProps) {
       <div className="grid gap-3">
         {proposal.items.map(({ product, reason }, idx) => {
           const isChannel3 = product.id.startsWith("c3_");
+          const brandOrMerchant = getBrandOrMerchant(product);
 
           return (
             <div
               key={`${product.id}-${idx}`}
               className="group relative rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all"
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3.5">
+                {/* 64px image thumbnail */}
+                <ProductThumbnail src={product.imageUrl} alt={product.title} />
+
+                {/* Content */}
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {product.url ? (
-                      <a
-                        href={product.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-semibold text-slate-900 text-base leading-snug hover:text-indigo-600 inline-flex items-center gap-1.5 transition-colors"
-                      >
-                        <span>{product.title}</span>
-                        <svg
-                          className="h-3.5 w-3.5 text-slate-400 hover:text-indigo-600 shrink-0"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      {product.url ? (
+                        <a
+                          href={product.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-slate-900 text-base leading-snug hover:text-indigo-600 inline-flex items-center gap-1.5 transition-colors line-clamp-1"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                    ) : (
-                      <h4 className="font-semibold text-slate-900 text-base leading-snug">
-                        {product.title}
-                      </h4>
-                    )}
+                          <span>{product.title}</span>
+                          <svg
+                            className="h-3.5 w-3.5 text-slate-400 hover:text-indigo-600 shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </a>
+                      ) : (
+                        <h4 className="font-semibold text-slate-900 text-base leading-snug line-clamp-1">
+                          {product.title}
+                        </h4>
+                      )}
 
-                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 capitalize">
-                      {product.category}
-                    </span>
+                      {/* Brand or Merchant Name + Category */}
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                          {brandOrMerchant}
+                        </span>
 
-                    {isChannel3 && (
-                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                        Live Merchant
+                        <span className="inline-flex items-center rounded-md bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-500 capitalize border border-slate-100">
+                          {product.category}
+                        </span>
+
+                        {isChannel3 && (
+                          <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                            Live Merchant
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Price in tabular numerals */}
+                    <div className="text-right shrink-0">
+                      <span className="text-lg font-bold text-slate-900 font-mono tabular-nums">
+                        ${fmt(product.priceCents)}
                       </span>
-                    )}
+                    </div>
                   </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-slate-600 italic">
+
+                  <p className="mt-2 text-xs leading-relaxed text-slate-600 italic">
                     &ldquo;{reason}&rdquo;
                   </p>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <span className="text-lg font-bold text-slate-900 font-mono">
-                    ${fmt(product.priceCents)}
-                  </span>
                 </div>
               </div>
             </div>

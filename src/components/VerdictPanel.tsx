@@ -29,7 +29,9 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
 
   const { verdict } = proposal;
   const isCaptured = proposal.status === "captured";
+  const isNoMatch = proposal.status === "no_match";
   const canProceed =
+    !isNoMatch &&
     verdict.allowed &&
     (!verdict.needsApproval || confirmed) &&
     !isCheckingOut &&
@@ -96,6 +98,19 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
               Order {proposal.orderId ? `#${proposal.orderId}` : ""} has been successfully paid and recorded in the audit trail.
             </p>
           </div>
+        ) : isNoMatch ? (
+          <div className="rounded-xl bg-slate-100 border border-slate-200 p-4">
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-400 text-white font-bold text-xs shrink-0">
+                —
+              </span>
+              <span className="text-base font-bold text-slate-800">No purchase proposed</span>
+            </div>
+            <p className="text-xs text-slate-600 mt-1.5 font-medium">
+              {proposal.verdict.violations[0]?.replace(/^No close match:\s*/i, "") ||
+                "No matching products found for your request."}
+            </p>
+          </div>
         ) : !verdict.allowed ? (
           <div className="rounded-xl bg-rose-50 border border-rose-200 p-4">
             <div className="flex items-center gap-2.5">
@@ -147,53 +162,90 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
         )}
       </div>
 
-      {/* Rules checked list (under the status pill, shown for allowed, approval, and blocked states) */}
+      {/* Rules checked list (under the status pill, shown for allowed, approval, blocked, and no_match states) */}
       {verdict.checks && verdict.checks.length > 0 && (
         <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Rules checked
             </h3>
-            <span className="text-[10px] text-slate-400 font-medium">
-              {verdict.checks.filter((c) => c.passed).length}/{verdict.checks.length} passed
+            <span className="text-[10px] text-slate-500 font-semibold">
+              {(() => {
+                if (isNoMatch) return "Rules skipped";
+                if (!verdict.allowed) {
+                  const failedCount =
+                    verdict.checks.filter((c) => !c.passed && c.rule !== "approval threshold").length ||
+                    verdict.checks.filter((c) => !c.passed).length;
+                  return `${failedCount} rule${failedCount === 1 ? "" : "s"} failed`;
+                }
+                if (verdict.needsApproval) return "Needs your approval";
+                return "All rules passed";
+              })()}
             </span>
           </div>
           <div className="space-y-1.5">
-            {verdict.checks.map((c) => (
-              <div
-                key={c.rule}
-                className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white border border-slate-100 text-xs shadow-2xs"
-              >
-                <div className="flex items-start gap-2 min-w-0">
-                  {c.passed ? (
-                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-emerald-100 text-emerald-700 shrink-0 mt-0.5" title="Rule passed">
-                      <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-rose-100 text-rose-700 shrink-0 mt-0.5" title="Rule violated or flagged">
-                      <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </span>
-                  )}
-                  <div className="min-w-0">
-                    <span className="font-semibold text-slate-800 capitalize block truncate">{c.rule}</span>
-                    <p className="text-[11px] text-slate-500 leading-tight mt-0.5">{c.detail}</p>
-                  </div>
-                </div>
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 uppercase ${
-                    c.passed
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-rose-50 text-rose-700 border border-rose-200"
-                  }`}
-                >
-                  {c.passed ? "Pass" : "Cross"}
+            {verdict.checks.map((c) => {
+              const isThresholdReview = !isNoMatch && !c.passed && c.rule === "approval threshold";
+              let badgeText = "PASS";
+              let badgeStyle = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+              let icon = (
+                <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-emerald-100 text-emerald-700 shrink-0 mt-0.5" title="Rule passed">
+                  <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
                 </span>
-              </div>
-            ))}
+              );
+
+              if (isNoMatch) {
+                badgeText = "SKIPPED";
+                badgeStyle = "bg-slate-100 text-slate-500 border border-slate-200";
+                icon = (
+                  <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-slate-200 text-slate-500 shrink-0 mt-0.5 font-bold text-[10px]" title="Rule skipped">
+                    —
+                  </span>
+                );
+              } else if (isThresholdReview) {
+                badgeText = "REVIEW";
+                badgeStyle = "bg-amber-50 text-amber-700 border border-amber-200";
+                icon = (
+                  <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-amber-100 text-amber-700 shrink-0 mt-0.5 font-bold text-[10px]" title="Requires approval">
+                    !
+                  </span>
+                );
+              } else if (!c.passed) {
+                badgeText = "FAIL";
+                badgeStyle = "bg-rose-50 text-rose-700 border border-rose-200";
+                icon = (
+                  <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-rose-100 text-rose-700 shrink-0 mt-0.5" title="Rule violated">
+                    <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </span>
+                );
+              }
+
+              return (
+                <div
+                  key={c.rule}
+                  className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white border border-slate-100 text-xs shadow-2xs"
+                >
+                  <div className="flex items-start gap-2 min-w-0">
+                    {icon}
+                    <div className="min-w-0">
+                      <span className="font-semibold text-slate-800 capitalize block truncate">{c.rule}</span>
+                      <p className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                        {isNoMatch ? "Skipped" : c.detail}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 uppercase ${badgeStyle}`}
+                  >
+                    {badgeText}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -253,6 +305,14 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
           <div className="w-full text-center py-3 px-4 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-sm">
             &check; Paid &amp; Saved to Audit Trail
           </div>
+        ) : isNoMatch ? (
+          <button
+            type="button"
+            disabled
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-3.5 text-base font-bold text-slate-400 cursor-not-allowed"
+          >
+            Nothing to pay for
+          </button>
         ) : (
           <button
             type="button"
@@ -279,7 +339,7 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
           </button>
         )}
 
-        {!isCaptured && !verdict.allowed && (
+        {!isCaptured && !verdict.allowed && !isNoMatch && (
           <p className="text-center text-xs text-rose-600 mt-2 font-medium">
             Payment disabled: Basket exceeds spending policy limits.
           </p>

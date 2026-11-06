@@ -15,7 +15,7 @@ export function Header() {
                 Sandbox mode - no real money
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">An AI shopping agent that can&apos;t overspend</p>
+            <p className="text-xs text-slate-500 font-medium">Spending rules the AI can&apos;t override</p>
           </div>
         </div>
         <div className="flex items-center">

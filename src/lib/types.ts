@@ -5,6 +5,9 @@ export type Product = {
   category: string;
   tags?: string[];
   url?: string;
+  imageUrl?: string;
+  brand?: string;
+  merchant?: string;
 };
 
 export type Policy = {
@@ -29,7 +32,14 @@ export type Verdict = {
 };
 
 export type ProposalStatus =
-  | "proposed" | "blocked" | "order_created" | "captured" | "declined" | "failed" | "cancelled";
+  | "proposed"
+  | "blocked"
+  | "order_created"
+  | "captured"
+  | "declined"
+  | "failed"
+  | "cancelled"
+  | "no_match";
 
 export type Proposal = {
   id: string;
@@ -43,4 +53,3 @@ export type Proposal = {
   orderId?: string;
   note?: string;
 };
-
