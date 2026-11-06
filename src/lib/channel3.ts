@@ -16,6 +16,7 @@ export const Channel3OfferSchema = z.object({
   url: z.string().optional().nullable(),
   domain: z.string().optional().nullable(),
   price: Channel3OfferPriceSchema.optional().nullable(),
+  currency: z.string().optional().nullable(),
   availability: z.string().optional().nullable(),
   condition: z.string().optional().nullable(),
 });
@@ -42,21 +43,68 @@ export const Channel3ResponseSchema = z.object({
   products: z.array(z.unknown()).optional().default([]),
 });
 
-export function extractPrice(raw: z.infer<typeof Channel3ProductSchema>): number | null {
-  // Check offers[0].price first (per Channel3 official documentation)
-  const firstOffer = raw.offers?.[0];
-  if (firstOffer?.price !== undefined && firstOffer?.price !== null) {
-    if (typeof firstOffer.price === "number") return firstOffer.price;
-    if (typeof firstOffer.price.price === "number") return firstOffer.price.price;
+export function getOfferCurrency(offer: z.infer<typeof Channel3OfferSchema>): string | null {
+  if (offer.currency && typeof offer.currency === "string") {
+    return offer.currency.trim().toUpperCase();
+  }
+  if (offer.price && typeof offer.price === "object" && offer.price.currency) {
+    return offer.price.currency.trim().toUpperCase();
+  }
+  return null;
+}
+
+export function getProductCurrency(raw: z.infer<typeof Channel3ProductSchema>): string | null {
+  if (raw.price && typeof raw.price === "object" && raw.price.currency) {
+    return raw.price.currency.trim().toUpperCase();
+  }
+  return null;
+}
+
+export function extractPriceAndOffer(
+  raw: z.infer<typeof Channel3ProductSchema>
+): { priceUsd: number; url?: string } | null {
+  // 1. If offers exist, ONLY accept offers whose currency is USD; drop non-USD offers.
+  if (raw.offers && raw.offers.length > 0) {
+    const usdOffer = raw.offers.find((o) => getOfferCurrency(o) === "USD");
+    if (!usdOffer) {
+      // Offers exist, but none are USD. Drop everything else.
+      return null;
+    }
+
+    let price: number | null = null;
+    if (typeof usdOffer.price === "number") {
+      price = usdOffer.price;
+    } else if (usdOffer.price && typeof usdOffer.price.price === "number") {
+      price = usdOffer.price.price;
+    }
+
+    if (price === null || isNaN(price) || price <= 0) return null;
+    return { priceUsd: price, url: usdOffer.url ?? undefined };
   }
 
-  // Fallback to top-level price if present
+  // 2. Fallback to top-level price if present
   if (raw.price !== undefined && raw.price !== null) {
-    if (typeof raw.price === "number") return raw.price;
-    if (typeof raw.price.price === "number") return raw.price.price;
+    const topCurrency = getProductCurrency(raw);
+    if (topCurrency !== null && topCurrency !== "USD") {
+      return null;
+    }
+
+    let price: number | null = null;
+    if (typeof raw.price === "number") {
+      price = raw.price;
+    } else if (typeof raw.price.price === "number") {
+      price = raw.price.price;
+    }
+
+    if (price === null || isNaN(price) || price <= 0) return null;
+    return { priceUsd: price, url: raw.url ?? undefined };
   }
 
   return null;
+}
+
+export function extractPrice(raw: z.infer<typeof Channel3ProductSchema>): number | null {
+  return extractPriceAndOffer(raw)?.priceUsd ?? null;
 }
 
 export function mapChannel3Product(rawItem: unknown): Product | null {
@@ -64,12 +112,12 @@ export function mapChannel3Product(rawItem: unknown): Product | null {
   if (!parsed.success) return null;
 
   const item = parsed.data;
-  const priceUsd = extractPrice(item);
-  if (priceUsd === null || isNaN(priceUsd) || priceUsd <= 0) {
+  const priceInfo = extractPriceAndOffer(item);
+  if (!priceInfo || priceInfo.priceUsd <= 0) {
     return null;
   }
 
-  const priceCents = Math.round(priceUsd * 100);
+  const priceCents = Math.round(priceInfo.priceUsd * 100);
   if (priceCents <= 0) return null;
 
   let category = "general";
@@ -82,9 +130,7 @@ export function mapChannel3Product(rawItem: unknown): Product | null {
     }
   }
 
-  const offerUrl = item.offers?.[0]?.url;
-  const directUrl = item.url;
-  const url = offerUrl ?? directUrl ?? undefined;
+  const url = priceInfo.url ?? item.url ?? undefined;
 
   return {
     id: `c3_${item.id}`,
@@ -145,4 +191,3 @@ export async function searchChannel3(
     return [];
   }
 }
-

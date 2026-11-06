@@ -14,11 +14,18 @@ export type Policy = {
   blockedCategories: string[];
 };
 
+export type VerdictCheck = {
+  rule: string;
+  passed: boolean;
+  detail: string;
+};
+
 export type Verdict = {
   totalCents: number;
   allowed: boolean;
   needsApproval: boolean;
   violations: string[];
+  checks: VerdictCheck[];
 };
 
 export type ProposalStatus =

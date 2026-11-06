@@ -15,9 +15,43 @@ export const PolicySchema = z.object({
 export const DEFAULT_POLICY: Policy = {
   perItemCapCents: 5_000,
   totalBudgetCents: 20_000,
-  approvalThresholdCents: 10_000,
+  approvalThresholdCents: 2_500,
   blockedCategories: ["alcohol", "gift-cards"],
 };
+
+const EXPANSIONS: Record<string, string[]> = {
+  alcohol: [
+    "alcohol",
+    "whiskey",
+    "whisky",
+    "bourbon",
+    "vodka",
+    "wine",
+    "beer",
+    "liquor",
+    "spirits",
+    "rum",
+    "gin",
+    "tequila",
+    "champagne",
+    "brandy",
+  ],
+  "gift-cards": ["gift card", "gift cards", "giftcard", "voucher", "e-gift"],
+  "gift cards": ["gift card", "gift cards", "giftcard", "voucher", "e-gift"],
+};
+
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export function matchBlocked(p: Product, term: string): string | null {
+  const hay = ` ${norm([p.title, p.category, ...(p.tags ?? [])].join(" "))} `;
+  const t = norm(term);
+  const words = EXPANSIONS[t] ?? EXPANSIONS[term] ?? [t.replace(/s$/, "")];
+  for (const w of words.map(norm).filter(Boolean)) {
+    if (new RegExp(`\\b${esc(w)}s?\\b`).test(hay)) return w;
+  }
+  return null;
+}
 
 export function evaluate(items: Product[], policy: Policy): Verdict {
   const totalCents = items.reduce((s, i) => s + i.priceCents, 0);
@@ -25,22 +59,84 @@ export function evaluate(items: Product[], policy: Policy): Verdict {
 
   if (items.length === 0) violations.push("No items selected");
 
+  let itemCapPassed = items.length > 0;
+  let blockedPassed = true;
+  const blockedDetails: string[] = [];
+
   for (const i of items) {
-    if (i.priceCents > policy.perItemCapCents)
-      violations.push(`"${i.title}" ($${fmt(i.priceCents)}) exceeds the per-item cap of $${fmt(policy.perItemCapCents)}`);
-    if (policy.blockedCategories.includes(i.category.toLowerCase()))
-      violations.push(`"${i.title}" is in blocked category "${i.category}"`);
+    if (i.priceCents > policy.perItemCapCents) {
+      itemCapPassed = false;
+      violations.push(
+        `"${i.title}" ($${fmt(i.priceCents)}) exceeds the per-item cap of $${fmt(policy.perItemCapCents)}`
+      );
+    }
+    for (const term of policy.blockedCategories) {
+      const word = matchBlocked(i, term);
+      if (word) {
+        blockedPassed = false;
+        const msg = `"${i.title}" matches blocked term "${word}" (blocked: ${term})`;
+        violations.push(msg);
+        blockedDetails.push(msg);
+      }
+    }
   }
-  if (totalCents > policy.totalBudgetCents)
+
+  const budgetPassed =
+    items.length > 0 &&
+    totalCents <= policy.totalBudgetCents &&
+    totalCents <= HARD_MAX_TOTAL_CENTS;
+
+  if (totalCents > policy.totalBudgetCents) {
     violations.push(`Total $${fmt(totalCents)} exceeds the budget of $${fmt(policy.totalBudgetCents)}`);
-  if (totalCents > HARD_MAX_TOTAL_CENTS)
+  }
+  if (totalCents > HARD_MAX_TOTAL_CENTS) {
     violations.push(`Total exceeds the hard system limit of $${fmt(HARD_MAX_TOTAL_CENTS)}`);
+  }
+
+  const thresholdPassed = totalCents <= policy.approvalThresholdCents;
+
+  const checks = [
+    {
+      rule: "per-item cap",
+      passed: itemCapPassed,
+      detail:
+        items.length === 0
+          ? "No items selected"
+          : itemCapPassed
+          ? `All items are within the $${fmt(policy.perItemCapCents)} per-item cap`
+          : `One or more items exceed the $${fmt(policy.perItemCapCents)} per-item cap`,
+    },
+    {
+      rule: "total budget",
+      passed: budgetPassed,
+      detail:
+        items.length === 0
+          ? "No items selected"
+          : budgetPassed
+          ? `Total $${fmt(totalCents)} is within the $${fmt(policy.totalBudgetCents)} budget`
+          : `Total $${fmt(totalCents)} exceeds the $${fmt(policy.totalBudgetCents)} budget`,
+    },
+    {
+      rule: "blocked categories",
+      passed: blockedPassed,
+      detail: blockedPassed
+        ? "No items match blocked categories or terms"
+        : blockedDetails.join("; "),
+    },
+    {
+      rule: "approval threshold",
+      passed: thresholdPassed,
+      detail: thresholdPassed
+        ? `Total $${fmt(totalCents)} is within the $${fmt(policy.approvalThresholdCents)} auto-approval limit`
+        : `Total $${fmt(totalCents)} exceeds the $${fmt(policy.approvalThresholdCents)} threshold (requires sign-off)`,
+    },
+  ];
 
   return {
     totalCents,
     allowed: violations.length === 0,
     needsApproval: totalCents > policy.approvalThresholdCents,
     violations,
+    checks,
   };
 }
-

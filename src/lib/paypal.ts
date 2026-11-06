@@ -64,6 +64,7 @@ export async function createOrder(items: Product[], totalCents: number, proposal
       payment_source: {
         paypal: {
           experience_context: {
+            brand_name: "ApprovalPay",
             user_action: "PAY_NOW",
             shipping_preference: "NO_SHIPPING",
             return_url: `${e.APP_URL}/api/paypal/return`,

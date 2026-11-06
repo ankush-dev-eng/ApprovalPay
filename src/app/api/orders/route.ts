@@ -8,6 +8,12 @@ import { allow } from "@/lib/ratelimit";
 export const dynamic = "force-dynamic";
 
 const Body = z.object({ proposalId: z.string().uuid(), confirmed: z.boolean().default(false) });
+const MAX_PROPOSAL_AGE_MS = 15 * 60 * 1000; // 15 minutes
+
+export function isProposalExpired(createdAt: string, now: number = Date.now()): boolean {
+  const ageMs = now - new Date(createdAt).getTime();
+  return isNaN(ageMs) || ageMs > MAX_PROPOSAL_AGE_MS;
+}
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
@@ -19,6 +25,11 @@ export async function POST(req: NextRequest) {
   const p = await getProposal(body.data.proposalId);
   if (!p) return NextResponse.json({ error: "Proposal not found" }, { status: 404 });
   if (p.status !== "proposed") return NextResponse.json({ error: `Proposal is ${p.status}` }, { status: 409 });
+
+  // Proposal expiry check (15 minutes)
+  if (isProposalExpired(p.createdAt)) {
+    return NextResponse.json({ error: "Proposal expired, ask the agent again" }, { status: 409 });
+  }
 
   // Re-verify on the server. Never trust earlier state.
   const products = p.items.map((i) => i.product);
@@ -41,4 +52,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not create PayPal order" }, { status: 502 });
   }
 }
-

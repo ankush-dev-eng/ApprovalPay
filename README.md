@@ -19,7 +19,7 @@
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/NEXT.JS_16-APP_ROUTER-000000?style=for-the-badge&logo=nextdotjs&logoColor=white&labelColor=17171B" alt="Next.js 16" /></a>
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TYPESCRIPT-STRICT_MODE-3178C6?style=for-the-badge&logo=typescript&logoColor=white&labelColor=17171B" alt="TypeScript Strict" /></a>
   <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/TAILWIND_V4-DESIGN-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white&labelColor=17171B" alt="Tailwind CSS v4" /></a>
-  <a href="https://vitest.dev"><img src="https://img.shields.io/badge/VITEST-13_PASSED-6E9F18?style=for-the-badge&logo=vitest&logoColor=white&labelColor=17171B" alt="Vitest Passed" /></a>
+  <a href="https://vitest.dev"><img src="https://img.shields.io/badge/VITEST-26_PASSED-6E9F18?style=for-the-badge&logo=vitest&logoColor=white&labelColor=17171B" alt="Vitest Passed" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-A9690F?style=for-the-badge&labelColor=17171B" alt="MIT License" /></a>
 </p>
 
@@ -58,7 +58,7 @@
 | **Policy Engine** | Pure TypeScript: per-item cap, total budget, category blocklist, $500 hard ceiling, approval threshold |
 | **Human Gate** | Explicit user confirmation checkbox required whenever proposal total exceeds threshold |
 | **Audit Ledger** | Server-side record of proposals, intent, policy verdicts, and PayPal Order IDs (`data/audit.json`) |
-| **Automated Testing** | 13 Vitest unit tests (100% pass) + pre-commit secret scanners + GitHub Actions CI |
+| **Automated Testing** | 26 Vitest unit tests (100% pass) + pre-commit secret scanners + GitHub Actions CI |
 
 ---
 
@@ -398,12 +398,14 @@ npm run secret-scan
 
 ### Test Suite Summary
 ```text
- ✓ src/lib/__tests__/policy.test.ts    (6 tests)
+ ✓ src/lib/__tests__/policy.test.ts    (11 tests)
+ ✓ src/lib/__tests__/channel3.test.ts  (6 tests)
  ✓ src/lib/__tests__/products.test.ts  (3 tests)
- ✓ src/lib/__tests__/channel3.test.ts  (4 tests)
+ ✓ src/lib/__tests__/agent.test.ts     (3 tests)
+ ✓ src/lib/__tests__/orders.test.ts    (3 tests)
 
- Test Files  3 passed (3)
-      Tests  13 passed (13)
+ Test Files  5 passed (5)
+      Tests  26 passed (26)
 ```
 
 ---

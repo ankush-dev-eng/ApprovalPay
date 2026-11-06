@@ -55,7 +55,7 @@ describe("Channel3 product mapping", () => {
       mapChannel3Product({
         id: "p1",
         title: "Free Sample",
-        offers: [{ price: { price: 0 } }],
+        offers: [{ price: { price: 0, currency: "USD" } }],
       })
     ).toBeNull();
 
@@ -87,5 +87,68 @@ describe("Channel3 product mapping", () => {
     const mapped = mapChannel3Product(sample);
     expect(mapped?.category).toBe("general");
   });
-});
 
+  describe("currency filtering", () => {
+    it("drops offers with non-USD currency (EUR, GBP, CAD)", () => {
+      // Offer with EUR
+      expect(
+        mapChannel3Product({
+          id: "p_eur",
+          title: "European Product",
+          offers: [
+            {
+              url: "https://example.de/item",
+              price: { price: 89.99, currency: "EUR" },
+            },
+          ],
+        })
+      ).toBeNull();
+
+      // Offer with GBP
+      expect(
+        mapChannel3Product({
+          id: "p_gbp",
+          title: "British Product",
+          offers: [
+            {
+              url: "https://example.co.uk/item",
+              currency: "GBP",
+              price: 50.0,
+            },
+          ],
+        })
+      ).toBeNull();
+
+      // Top-level price with CAD
+      expect(
+        mapChannel3Product({
+          id: "p_cad",
+          title: "Canadian Product",
+          price: { price: 75.0, currency: "CAD" },
+        })
+      ).toBeNull();
+    });
+
+    it("accepts USD offer when multiple offers exist (drops EUR, keeps USD)", () => {
+      const sample = {
+        id: "p_multi",
+        title: "Global Gadget",
+        offers: [
+          {
+            url: "https://euro.example.com/gadget",
+            price: { price: 90, currency: "EUR" },
+          },
+          {
+            url: "https://us.example.com/gadget",
+            price: { price: 99.95, currency: "USD" },
+          },
+        ],
+      };
+
+      const mapped = mapChannel3Product(sample);
+      expect(mapped).not.toBeNull();
+      expect(mapped?.priceCents).toBe(9995);
+      expect(mapped?.url).toBe("https://us.example.com/gadget");
+    });
+  });
+});

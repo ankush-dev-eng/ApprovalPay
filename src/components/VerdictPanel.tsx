@@ -159,6 +159,49 @@ export function VerdictPanel({ proposal, isLoadingAgent }: VerdictPanelProps) {
         </div>
       </div>
 
+      {/* Policy Rule Checklist */}
+      {verdict.checks && verdict.checks.length > 0 && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              Rule Checklist
+            </h3>
+            <span className="text-[10px] text-slate-400 font-medium">4 code-enforced rules</span>
+          </div>
+          <div className="space-y-1.5">
+            {verdict.checks.map((c) => (
+              <div
+                key={c.rule}
+                className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white border border-slate-100 text-xs shadow-2xs"
+              >
+                <div className="flex items-start gap-2">
+                  <span
+                    className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[10px] font-bold shrink-0 mt-0.5 ${
+                      c.passed ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    {c.passed ? "✓" : "!"}
+                  </span>
+                  <div>
+                    <span className="font-semibold text-slate-800 capitalize">{c.rule}</span>
+                    <p className="text-[11px] text-slate-500 leading-tight">{c.detail}</p>
+                  </div>
+                </div>
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 uppercase ${
+                    c.passed
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-amber-50 text-amber-700 border border-amber-200"
+                  }`}
+                >
+                  {c.passed ? "Pass" : "Flag"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Explicit approval checkbox if required */}
       {!isCaptured && verdict.allowed && verdict.needsApproval && (
         <label className="flex items-start gap-3 p-3.5 rounded-xl border border-amber-300 bg-amber-50/70 cursor-pointer select-none hover:bg-amber-50 transition-colors">

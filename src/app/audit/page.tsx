@@ -339,6 +339,26 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
                                 </div>
                               )}
 
+                              {/* Rule Checklist if available */}
+                              {p.verdict.checks && p.verdict.checks.length > 0 && (
+                                <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 space-y-1.5">
+                                  <span className="font-bold text-xs text-slate-800 block">Rule Checklist:</span>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    {p.verdict.checks.map((c) => (
+                                      <div key={c.rule} className="flex items-start gap-1.5 bg-white p-2 rounded border border-slate-100">
+                                        <span className={c.passed ? "text-emerald-600 font-bold" : "text-amber-600 font-bold"}>
+                                          {c.passed ? "✓" : "!"}
+                                        </span>
+                                        <div>
+                                          <span className="font-semibold text-slate-800 capitalize">{c.rule}</span>
+                                          <p className="text-[11px] text-slate-500">{c.detail}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
                               {/* Note field if present */}
                               {p.note && (
                                 <div className="pt-2 border-t border-slate-100 text-xs text-slate-600">
